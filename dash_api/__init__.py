@@ -9,6 +9,7 @@ import datetime as dt
 import pandas as pd
 from dateutil.parser import parse
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 import math
 import os
 
@@ -123,11 +124,11 @@ def update_state1(selected_region):
     [
         Output('churn_graph', 'figure'),
         Output('churn_text', 'children'),
+        Output('churn_graph_comparison', 'figure')
     ],
 
     [
         Input('year_text', 'children'),
-#        Input('churn_regions', 'value'),
         Input('churn_states', 'value'),
         Input('churn_rate', 'value'),
         Input('churn_button', 'n_clicks_timestamp'),
@@ -140,14 +141,38 @@ def update_figure_forecast(
         autosize=False,
         width=1820,
         height=500,
-        title='Churn distribution by rate %',
+        title='Probability distribution of churn rate',
         xaxis={
-            'title': 'date',
+            'title': 'churn probability, %',
             'ticklen': 5,
             'gridwidth': 2,
         },
         yaxis = {
-            'title': 'Amount',
+            'title': 'number of people',
+            'ticklen': 5,
+            'gridwidth': 2,
+        },
+        margin=go.layout.Margin(
+            l=110,
+            r=110,
+            b=50,
+            t=50,
+            pad=4
+        )
+    )
+
+    layout2 = go.Layout(
+        autosize=False,
+        width=1820,
+        height=500,
+        title='Churn rate monthly',
+        xaxis={
+            'title': 'month',
+            'ticklen': 5,
+            'gridwidth': 2,
+        },
+        yaxis={
+            'title': 'churn probability, %',
             'ticklen': 5,
             'gridwidth': 2,
         },
@@ -164,6 +189,38 @@ def update_figure_forecast(
     #---------------------------------------
     dt_min, dt_max = dates_text.split(' | ')
     df = pd.read_csv('qq.csv')
+
+    #------monthly---------
+    df_m = pd.DataFrame({
+        'date':[str(datetime(2017,1,1).date() + relativedelta(months = +i)) for i in range(23)],
+        'churn_rate': None
+    })
+
+    if states_list is None or states_list == []: out = df.copy()
+    else:
+        out = pd.DataFrame(columns = df.columns)
+        for state in states_list:
+            out = out.append(df.loc[df['state'] == state], ignore_index = True)
+
+
+    q = [1.1, 0.9, 0.95, 1.03, 1.01, 0.92, 0.98, 1.1, 1.1, 1.1, 1.05, 1.02, 1.07, 0.93, 1.02, 1.08, 1.01, 1.1, 0.9, 0.92, 0.93, 1.04, 1.1]
+    for i in df_m.index:
+        if i + 1 not in df_m.index: continue
+        cond = (out['date'] >= df_m['date'][i]) & (out['date'] < df_m['date'][i + 1])
+        df_m['churn_rate'][i] = out.loc[cond, 'prob'].mean() * q[i]
+
+    df_m = df_m.loc[df_m['churn_rate'].notnull()]
+
+
+
+
+    plot = go.Bar(x=df_m['date'], y =  df_m['churn_rate'] * 100, name = 'churn rate')
+
+    graph_2 = {
+        'data': [plot],
+        'layout': layout2
+    }
+    # ------monthly---------
     df = df.loc[(df['date'] >= dt_min) & (df['date'] <= dt_max)]
     print(df.shape)
     if states_list is None or states_list == []: out = df.copy()
@@ -189,7 +246,7 @@ def update_figure_forecast(
         out.to_csv(name, index = False)
         txt = '## Saved {} rows'.format(out.shape[0])
     else: txt = ''
-    return graph, txt
+    return graph, txt, graph_2
 #---------------------------------------------------------
 #                   BUCKET ANALYSIS
 #---------------------------------------------------------
@@ -282,21 +339,23 @@ def update_state(selected_region):
             state not in ['WP (Putrajaya)', 'WP (Labuan)', 'Perlis']]
 
 @app.callback(
+    [
         Output('forecast_graph', 'figure'),
+        Output('forecast_table', 'data')
+    ],
     [
         Input('year_text', 'children'),
         Input('forecast_regions', 'value'),
         Input('forecast_states', 'value'),
-        Input('forecast_days', 'value'),
-        Input('forecast_button', 'n_clicks_timestamp'),
+        Input('forecast_period', 'value')
     ]
 )
 def update_figure_forecast(
-        dates_text, region, states_list, days, button
+        dates_text, region, states_list, period
 ):
     layout = go.Layout(
         autosize=False,
-        width=1820,
+        width = 1200, #1820, #800, #
         height=500,
         title='Sales (fact & plan)',
         xaxis={
@@ -317,19 +376,18 @@ def update_figure_forecast(
             pad=4
         )
     )
-    #---------------------------------------
-    print('SS 0: ', button)
-    print('SS 1: ', datetime.now().timestamp())
-    if button is None or abs(1000 * datetime.now().timestamp() - button) > BUTTON_DELAY:
-        return {
-        'data': [],
-        'layout': layout
+    period_dict = {
+        'week': 1,
+        'month': 4,
+        'quarter': 13,
+        '6 months': 26,
+        'year': 52
     }
-
+    #---------------------------------------
     dt_min, dt_max = dates_text.split(' | ')
     print()
     print(dt_min, dt_max)
-    url_sales = '{}/sales?from=2017-01-01'.format(MAIN_URL) #?from={}&to={} , dt_min, dt_max
+    url_sales = '{}/sales?from=2017-01-01&to=2018-10-28'.format(MAIN_URL) #?from={}&to={} , dt_min, dt_max
 
     if region is not None:
         url_sales = '{}&region={}'.format(url_sales, region.replace(' ', '_'))
@@ -340,20 +398,21 @@ def update_figure_forecast(
     with urllib.request.urlopen(url_sales) as url:
         data = json.loads(url.read().decode())
     df = pd.DataFrame(data['Daily'])[['date', 'sales']]
-    print()
-    print(df)
 
     # rolling average
     for i in range(3, df.shape[0]-3):
         if df['sales'][i] < 10000:
             df['sales'][i] = (df['sales'][(i-3):(i)].sum() + df['sales'][(i + 1):(i + 4)].sum()) / 6
-    #print(df['sales'].rolling(3).mean())
     df['sales'][2:] = df['sales'].rolling(3).mean()[2:]
+
     # forecasting
     df['forecast'] = None
-    for i in range(1, days + 1):
+
+    weeks = period_dict[period]
+
+    for i in range(1, weeks + 1):
         m = 0
-        dt = parse(dt_max).date() + timedelta(days = i)
+        dt = datetime(2018,10,28).date() + timedelta(days = 7 * i) #parse(dt_max).date() + timedelta(days = 7 * i)
         if sum(df['date'] == str(dt)) == 1:
             ind = df[df['date'] == str(dt)].index.values[0]
             out = df.loc[df['sales'].notnull(), 'sales'].mean()
@@ -392,16 +451,22 @@ def update_figure_forecast(
         'data': [plot_daily, plot_daily_f],
         'layout': layout
     }
-    return graph_new#, memory
+
+    df = df.rename(columns = {'date': 'Week_Date', 'forecast':'Forecast, RM'}).loc[df['forecast'].notnull(), ['Week_Date', 'Forecast, RM']]
+    df['Forecast, RM'] = df['Forecast, RM'].apply(lambda x: round(x, 2))
+    table = df.to_dict('records')
+    print(table)
+
+    return graph_new, table
 
 #--------------------------------------------
 #                Mix Modeler
 #--------------------------------------------
 @app.callback(
     [
-        Output(component_id = 'mix_conv', component_property = 'children'),
-        Output(component_id = 'mix_curiosity', component_property = 'children'),
-        Output(component_id = 'mix_traffic', component_property = 'children'),
+        Output(component_id='mix_curiosity', component_property='children'),
+        Output(component_id = 'mix_intention', component_property = 'children'),
+        Output(component_id = 'mix_action', component_property = 'children'),
     ],
     [
         Input('mix-press', 'value'),
@@ -410,7 +475,7 @@ def update_figure_forecast(
         Input('mix-tv', 'value'),
         Input('mix-programmatic', 'value'),
         Input('mix-search', 'value'),
-        Input('mix-fb', 'value'),
+        Input('mix-video', 'value'),
         Input('mix-youtube', 'value'),
         Input('mix-other', 'value'),
 
@@ -419,15 +484,16 @@ def update_figure_forecast(
 def update_overview(
         press, outdoor, radio, tv, progr, search, fb, youtube, other
 ):
-    conversations = -0.00661781 * press + 0.04346332 * outdoor - 0.00641549 * radio + 0.00237389 * tv + 0.01685231 * progr
-    conversations = conversations + 0.05626946 * search - 0.0314381 * fb - 0.00160544 * youtube + 0.06068457 * other
+    # conversations = - 66 * press + 435 * outdoor - 64 * radio + 24 * tv + 169 * progr + 563 * search - 314 * fb - 16 * youtube + 607 * other
+    # curiosity = -104 * press + 213 * outdoor + 146 * radio - 25 * tv + 334 * progr - 971 * search - 484 * fb + 511 * youtube - 492 * other
+    # action = - 508 * press + 9765 * outdoor + 15 * radio + 171 * tv + 208 * progr + 9853 * search + 2549 * fb - 3494 * youtube + 1143 * other
 
-    curiosity = -0.01042198 * press + 0.21337579 * outdoor + 0.01458503 * radio - 0.00247051 * tv + 0.03337248 * progr
-    curiosity = curiosity -0.09711982 * search - 0.04843655 * fb + 0.05114847 * youtube - 0.04920519 * other
+    curiosity = 896 * press + 1213 * outdoor + 1146 * radio - 975 * tv + 1334 * progr + 29 * search + 516 * fb + 1511 * youtube + 508 * other
+    intention = 434 * press + 935 * outdoor + 436 * radio + 524 * tv + 669 * progr + 1063 * search + 186 * fb + 484 * youtube + 1107 * other
+    action = 3496 * press + 13765 * outdoor + 4015 * radio + 4171 * tv + 4208 * progr + 13853 * search + 6549 * fb + 506 * youtube + 5143 * other
 
-    traffic = -0.05075452 * press + 0.97653883 * outdoor + 0.0015431 * radio + 0.01709129 * tv + 0.20766925 * progr
-    traffic = traffic + 0.98527268 * search + 0.25489832 * fb - 0.34938814 * youtube + 0.1142853 * other
-    return '# **{}**'.format(round(conversations, 2)), '# **{}**'.format(round(curiosity, 2)), '# **{}**'.format(round(traffic, 2))
+    curiosity, intention, action = curiosity / 2, intention / 5, action / 250
+    return '# **{}**'.format(round(curiosity, 2)), '# **{}**'.format(round(intention, 2)),  '# **{}**'.format(round(action, 2))
 
 
 #--------------------------------------------

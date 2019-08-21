@@ -34,7 +34,7 @@ def sales_search_object(
     must_query.append(q)
     # search
     s = Search(using = get_client(), index=index)
-    s.query = Q('bool', must=must_query)
+    s.query = Q('bool', must = must_query)
     return s
 
 
@@ -52,6 +52,11 @@ def agg_monthly_sales(s):
     s.aggs.bucket('holi_week_month', a_holiday).bucket('Month', a_dates).bucket('Sales', a_sales)
     return s
 
+def agg_weekly_sales(s):
+    a_dates = A('date_histogram', field='created', interval='1w', format='yyyy-MM-dd')
+    a_sales = A('sum', field='full_price')
+    s.aggs.bucket('Date', a_dates).bucket('Sales', a_sales)
+    return s
 
 def agg_weekdaily_sales(s):
     a_dates = A('terms', field='weekday')

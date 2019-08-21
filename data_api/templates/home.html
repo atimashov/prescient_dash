@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+</head>
+<body>
+    <font color="#00008b">
+        <h1>DATA API</h1>
+    </font>
+    <p>A set of APIs for use by dashboard for displaying data.</p>
+    <font color="#00008b">
+        <h2>API</h2>
+    </font>
+    <h3>Sales</h3>
+    This page return information about following info MONTHLY, WEEKLY, DAILY, HOURLY and by DAY OF THE WEEK separated by weekend or weekday
+    <li>date</li>
+    <li>sales (registrations)</li>
+    <li>dockets</li>
+    <li>average purchase</li>
+    <pre><code>link: .../sales</code></pre>
+
+    <h3>Subscribers</h3>
+    This page return information about following info MONTHLY
+    <li>date</li>
+    <li>new customers (registrations)</li>
+    <li>new buyers</li>
+    <li>buyers in DB cumulative</li>
+    <pre><code>link: .../subscribers</code></pre>
+
+    <h3>Products</h3>
+    There are 2 links are represented (monthly and daily separately). These pages return following info:
+    <li>date</li>
+    <li>product (only for monthly page for top 5 (!!!) products)</li>
+    <li>sales</li>
+    <li>dockets</li>
+    <pre><code>links: .../products & .../products_monthly</code></pre>
+
+    <h3>Stores</h3>
+    This page returns information about stores with the most sales such as
+    <li>store ID</li>
+    <li>store name</li>
+    <li>sales</li>
+    <li>dockets</li>
+    <pre><code>link: .../stores</code></pre>
+
+    <font color="#00008b">
+        <h2>FILTERS</h2>
+    </font>
+    Possible parameters:
+    <li>from (date)</li>
+    <li>to (date)</li>
+    <li>region</li>
+    <li>states</li>
+    <li>product</li>
+    <li>plot_type (monthly, daily, weekdaily, hourly: applicable for some types of API)</li>
+</code></pre>
+</body>
+</html>
+
+

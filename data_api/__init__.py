@@ -13,6 +13,7 @@ from sales import agg_daily_sales
 from sales import agg_monthly_sales
 from sales import agg_weekdaily_sales
 from sales import agg_hourly_sales
+from sales import agg_weekly_sales
 from sales import repackage_sales
 
 from bucket_analysis import bucket_search_object
@@ -23,7 +24,7 @@ app = Flask(__name__)
 
 def load_args(request):
     res = dict()
-    date_from = request.args.get('from', '2016-01-01')
+    date_from = request.args.get('from', '2017-01-02')
     res['from'] = date_from if date_from else '2016-01-01'
     date_to = request.args.get('to', '2018-10-31')
     res['to'] = date_to if date_to else '2018-10-31'
@@ -56,10 +57,11 @@ def hello():
 def sales():
     args = load_args(request)
     s = sales_search_object(filters = args)
-    if args['plot_type'] in ['daily', 'all']: s = agg_daily_sales(s)
-    if args['plot_type'] in ['monthly', 'all']: s = agg_monthly_sales(s)
-    if args['plot_type'] in ['weekdaily', 'all']: s = agg_weekdaily_sales(s)
-    if args['plot_type'] in ['hourly', 'all']: s = agg_hourly_sales(s)
+    # if args['plot_type'] in ['daily', 'all']: s = agg_daily_sales(s)
+    # if args['plot_type'] in ['monthly', 'all']: s = agg_monthly_sales(s)
+    # if args['plot_type'] in ['weekdaily', 'all']: s = agg_weekdaily_sales(s)
+    # if args['plot_type'] in ['hourly', 'all']: s = agg_hourly_sales(s)
+    s = agg_weekly_sales(s)
     s = s[:0]
     logging.warning('')
     logging.warning('*********************************************************************************')

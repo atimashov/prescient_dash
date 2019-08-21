@@ -87,7 +87,7 @@ def churn_predictor():
     filter_days = html.Div(
         [
             html.P(
-                'Churn rate:',
+                'Extract CR greater than:',
                 style={'margin-bottom': 5}
             ),
             dcc.Dropdown(
@@ -103,10 +103,11 @@ def churn_predictor():
 
     button = html.Div(
         [
-            html.P('Download CSV:'),
-            html.Button('Submit', id = 'churn_button')
+            html.P('Push the button:'),
+            html.Button('Get CSV', id = 'churn_button')
         ],
-        className = 'one column'
+        className = 'one column',
+        #style={'margin-left': 75}
     )
     filters = html.Div(
         [
@@ -133,6 +134,22 @@ def churn_predictor():
         style={'margin-top': 50}
     )
 
+    churn_graph_comparison = html.Div(
+        [
+            html.Div(
+                [
+                    dcc.Graph(
+                        id='churn_graph_comparison'
+                    )
+                ],
+                className='twelve columns',
+
+            ),
+        ],
+        className='row',
+        style={'margin-top': 100}
+    )
+
     page = html.Div(
         [
             html.H2(
@@ -152,7 +169,8 @@ def churn_predictor():
                     'textAlign': 'left'
                 }
             ),
-            churn_graph
+            churn_graph,
+            churn_graph_comparison
         ]
     )
     return page
@@ -361,7 +379,7 @@ def bucket_analysis():
     page = html.Div(
         [
             html.H2(
-                'Purchase Propensity Score',
+                'Purchase Propensity',
                 style = {
                     'margin-left': 20
                 }
@@ -396,6 +414,7 @@ def sales_forecasting():
         className='four columns',
         style = {'margin-left': 20}
     )
+
     filter_state = html.Div(
         [
             html.P(
@@ -413,14 +432,14 @@ def sales_forecasting():
     filter_days = html.Div(
         [
             html.P(
-                'Days to forecast:',
+                'Period to forecast:',
                 style={'margin-bottom': 5}
             ),
             dcc.Dropdown(
-                id='forecast_days',
-                options = [{'label': x, 'value':x} for x in range(1,31)],
-                multi=False,
-                value = 5
+                id='forecast_period',
+                options = [{'label': x, 'value':x} for x in ['week', 'month', 'quarter', '6 months', 'year']],
+                multi = False,
+                value = 'month'
             ),
         ],
         className='two columns',
@@ -430,8 +449,8 @@ def sales_forecasting():
 
     button = html.Div(
         [
-            html.P('Get report:'),
-            html.Button('Submit', id = 'forecast_button')
+            html.P('Push the button:'),
+            html.Button('Get CSV', id = 'forecast_button')
         ],
         className = 'one column'
     )
@@ -446,18 +465,43 @@ def sales_forecasting():
     )
     forecast_graph = html.Div(
         [
-            html.Div(
-                [
-                    dcc.Graph(
-                        id = 'forecast_graph'
-                    )
-                ],
-                className = 'twelve columns',
-
+            html.H5(
+                'Choose period, location and period to forecast. After that wait for few seconds.'
             ),
+            dcc.Graph(
+                id = 'forecast_graph'
+            )
         ],
-        className='row',
-        style={'margin-top': 50}
+        className = 'eight columns',
+        style={
+            'margin-top': 50,
+            'margin-left': 20
+        }
+    )
+
+    forecast_table = html.Div(
+        [
+            html.H5('Sales Forecasting (weekly):'),
+            DataTable(
+                id='forecast_table',
+                columns=[{'name': i, 'id': i} for i in ['Week_Date', 'Forecast, RM']],
+                style_table = {
+                    'overflowY': 'scroll',
+                    'height': '450px',
+                    'margin-top': 5
+                },
+                style_cell={'textAlign': 'center'},
+                style_header={
+                    'backgroundColor': 'white',
+                    'fontWeight': 'bold'
+                },
+            )
+        ],
+        className = 'three columns',
+        style = {
+            'margin-top': 50,
+            'margin-left': 20
+        }
     )
 
     page = html.Div(
@@ -469,19 +513,9 @@ def sales_forecasting():
                 }
             ),
             filters,
-            html.H4(
-                'Choose period, location and time to forecasting. After that wait for few seconds.',
-                style={
-                    'margin-left': 20
-                }
-            ),
-            # left_table,
-            # right_table
-            forecast_graph
-        ],
-        # style = {
-        #     'backgroundColor':'#d3d3d3'
-        # }
+            forecast_graph,
+            forecast_table
+        ]
     )
     return page
 
@@ -622,19 +656,18 @@ def mix_modeler():
         className = 'row'
     )
     #----------------------
-    slider_fb = html.Div(
+    slider_video = html.Div(
         [
             html.P(
-                'Facebook and Instagram:',
-                style={'margin-bottom': 5}
+                'Video:',
+                style = {'margin-bottom': 5}
             ),
             dcc.Slider(
-                id='mix-fb',
+                id = 'mix-video',
                 min = 0,
                 max = 400,
                 value = 20,
                 marks={i * 100: '{}'.format(i * 100000) for i in range(5)},
-                #vertical='True'
             )
         ],
         className='three columns',
@@ -652,7 +685,6 @@ def mix_modeler():
                 max = 400,
                 value = 20,
                 marks={i * 100: '{}'.format(i * 100000) for i in range(5)},
-                #vertical='True'
             )
         ],
         className='three columns',
@@ -678,7 +710,7 @@ def mix_modeler():
     )
     filters_3 = html.Div(
         [
-            slider_fb,
+            slider_video,
             slider_youtube,
             slider_other
         ],
@@ -686,20 +718,6 @@ def mix_modeler():
         className = 'row'
     )
     # ----------------------
-    convers = html.Div(
-        [
-            dcc.Markdown('## Conversations (monthly)'),
-            dcc.Markdown(id='mix_conv')
-        ],
-        className='four columns',
-        style={
-            'backgroundColor': '#dcf2ff',
-            'width': 400,
-            'height': 200,
-            'margin-left': 120,
-            'textAlign': 'center'
-        }
-    )
     curiosity = html.Div(
         [
             dcc.Markdown('## Curiosity'),
@@ -710,14 +728,29 @@ def mix_modeler():
             'backgroundColor': '#dcf2ff',
             'width': 400,
             'height': 200,
+            'margin-left': 120,
+            'textAlign': 'center'
+        }
+    )
+    intention = html.Div(
+        [
+            dcc.Markdown('## Intention'),
+            dcc.Markdown(id='mix_intention')
+        ],
+        className='four columns',
+        style={
+            'backgroundColor': '#dcf2ff',
+            'width': 400,
+            'height': 200,
             'margin-left': 80,
             'textAlign': 'center'
         }
     )
-    traffic = html.Div(
+
+    action = html.Div(
         [
-            dcc.Markdown('## Traffic'),
-            dcc.Markdown(id='mix_traffic')
+            dcc.Markdown('## Action'),
+            dcc.Markdown(id='mix_action')
         ],
         className='four columns',
         style={
@@ -730,9 +763,9 @@ def mix_modeler():
     )
     line = html.Div(
         [
-            convers,
             curiosity,
-            traffic
+            intention,
+            action
         ],
         style={
             'margin-top': 100
@@ -767,9 +800,9 @@ tabs = dcc.Tabs(
     value = 'tab-1',
     children = [
         dcc.Tab(children = churn_predictor(), label = 'Churn Predictor', value = 'tab-1', style = tab_style, selected_style = tab_selected_style),
-        dcc.Tab(children = bucket_analysis(), label = 'Purchase Propensity Score', value = 'tab-2', style = tab_style, selected_style = tab_selected_style),
+        dcc.Tab(children = bucket_analysis(), label = 'Correlative Targeting', value = 'tab-2', style = tab_style, selected_style = tab_selected_style),
         dcc.Tab(children = sales_forecasting(), label = 'Sales Forecasting', value = 'tab-3', style=tab_style, selected_style=tab_selected_style),
-        dcc.Tab(children = revenue_per_dollar(), label = 'Revenue per MYR', value='tab-4', style=tab_style, selected_style=tab_selected_style),
+        dcc.Tab(children = revenue_per_dollar(), label = 'Purchase Propensity', value='tab-4', style=tab_style, selected_style=tab_selected_style),
         dcc.Tab(children = mix_modeler(), label = 'Mix Modeler', value='tab-5', style=tab_style, selected_style=tab_selected_style),
     ],
     style=tabs_styles,
