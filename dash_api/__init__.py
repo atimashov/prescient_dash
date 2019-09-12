@@ -459,6 +459,17 @@ def update_figure_forecast(
 
     return graph_new, table
 
+# --------------------------------------------
+#            Purchase Propensity
+# --------------------------------------------
+@app.callback(
+    Output(component_id='propensity_states', component_property='options'),
+    [Input(component_id='propensity_regions', component_property='value')]
+)
+def update_state(selected_region):
+    return [{'label': state, 'value': state} for state in REGIONS[selected_region] if
+            state not in ['WP (Putrajaya)', 'WP (Labuan)', 'Perlis']]
+
 #--------------------------------------------
 #                Mix Modeler
 #--------------------------------------------
@@ -493,7 +504,8 @@ def update_overview(
     action = 3496 * press + 13765 * outdoor + 4015 * radio + 4171 * tv + 4208 * progr + 13853 * search + 6549 * fb + 506 * youtube + 5143 * other
 
     curiosity, intention, action = curiosity / 2, intention / 5, action / 250
-    return '# **{}**'.format(round(curiosity, 2)), '# **{}**'.format(round(intention, 2)),  '# **{}**'.format(round(action, 2))
+    # return '# **{}**'.format(round(curiosity, 0)), '# **{}**'.format(round(intention, 0)),  '# **{}**'.format(round(action, 0))
+    return '# **{}**'.format(int(curiosity)), '# **{}**'.format(int(intention)),  '# **{}**'.format(int(action))
 
 
 #--------------------------------------------
