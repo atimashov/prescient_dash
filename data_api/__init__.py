@@ -20,6 +20,10 @@ from bucket_analysis import bucket_search_object
 from bucket_analysis import agg_bucket
 from bucket_analysis import repackage_bucket
 
+from churn_rate import churn_search_object
+from churn_rate import churn_agg
+from churn_rate import churn_repackage
+
 app = Flask(__name__)
 
 def load_args(request):
@@ -86,6 +90,21 @@ def bucket_analysis():
     print(s.to_dict())
     out = s.execute().to_dict()['aggregations']
     out = repackage_bucket(out, args)
+    return jsonify(out)
+
+@app.route("/churn_rate")
+def churn_rate():
+    args = load_args(request)
+    s = churn_search_object(filters = args)
+    s = churn_agg(s)
+    s = s[:0]
+    logging.warning('')
+    logging.warning('*********************************************************************************')
+    logging.warning('')
+    logging.warning(json.dumps(s.to_dict()))
+    print(s.to_dict())
+    out = s.execute().to_dict()['aggregations']
+    out = churn_repackage(out)
     return jsonify(out)
 
 

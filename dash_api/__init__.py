@@ -7,6 +7,7 @@ import urllib.request, json
 import plotly.graph_objs as go
 import datetime as dt
 import pandas as pd
+import numpy as np
 from dateutil.parser import parse
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
@@ -15,6 +16,10 @@ import os
 
 from pages import tabs, marks
 from controls import REGIONS, STATES, PRODUCTS
+
+from churn_rate import churn_search_object
+from churn_rate import get_df_by_rate
+
 from time import sleep
 BUTTON_DELAY = 1000
 URL_TXT = 'dash_api/storage.txt'
@@ -129,13 +134,14 @@ def update_state1(selected_region):
 
     [
         Input('year_text', 'children'),
+        Input('churn_regions', 'value'),
         Input('churn_states', 'value'),
         Input('churn_rate', 'value'),
         Input('churn_button', 'n_clicks_timestamp'),
     ]
 )
 def update_figure_forecast(
-        dates_text, states_list, rate, button
+        dates_text, region, states_list, rate, button
 ):
     layout = go.Layout(
         autosize=False,
@@ -184,69 +190,56 @@ def update_figure_forecast(
             pad=4
         )
     )
-    flag = False
-    if button is not None and 1000 * datetime.now().timestamp() - button < BUTTON_DELAY: flag = True
-    #---------------------------------------
+    # MAIN PLOT (DENSITY)
     dt_min, dt_max = dates_text.split(' | ')
-    df = pd.read_csv('qq.csv')
+    url_churn = '{}/churn_rate?from={}&to={}'.format(MAIN_URL, dt_min, dt_max)
+    if region is not None:
+        url_churn = '{}&region={}'.format(url_churn, region.replace(' ', '_'))
+    if states_list is not None and states_list != []:
+        url_churn = '{}&states={}'.format(url_churn, ','.join(states_list))
 
-    #------monthly---------
-    df_m = pd.DataFrame({
-        'date':[str(datetime(2017,1,1).date() + relativedelta(months = +i)) for i in range(23)],
-        'churn_rate': None
-    })
+    with urllib.request.urlopen(url_churn) as url:
+        data = json.loads(url.read().decode())
 
-    if states_list is None or states_list == []: out = df.copy()
-    else:
-        out = pd.DataFrame(columns = df.columns)
-        for state in states_list:
-            out = out.append(df.loc[df['state'] == state], ignore_index = True)
-
-
-    q = [1.1, 0.9, 0.95, 1.03, 1.01, 0.92, 0.98, 1.1, 1.1, 1.1, 1.05, 1.02, 1.07, 0.93, 1.02, 1.08, 1.01, 1.1, 0.9, 0.92, 0.93, 1.04, 1.1]
-    for i in df_m.index:
-        if i + 1 not in df_m.index: continue
-        cond = (out['date'] >= df_m['date'][i]) & (out['date'] < df_m['date'][i + 1])
-        df_m['churn_rate'][i] = out.loc[cond, 'prob'].mean() * q[i]
-
-    df_m = df_m.loc[df_m['churn_rate'].notnull()]
-
-
-
-
-    plot = go.Bar(x=df_m['date'], y =  df_m['churn_rate'] * 100, name = 'churn rate')
-
-    graph_2 = {
-        'data': [plot],
-        'layout': layout2
-    }
-    # ------monthly---------
-    df = df.loc[(df['date'] >= dt_min) & (df['date'] <= dt_max)]
-    print(df.shape)
-    if states_list is None or states_list == []: out = df.copy()
-    else:
-        out = pd.DataFrame(columns = df.columns)
-        for state in states_list:
-            out = out.append(df.loc[df['state'] == state], ignore_index = True)
-    #TODO: dependency on n
-    x = [5 * i for i in range(1, 21)]
-    y = []
-    for i in range(1, 21):
-        y.append(sum((out['prob'] <= i * 5 / 100) & (out['prob'] > (i - 1) * 5 / 100)))
-
-    plot = go.Bar(x = x, y = y, name='fact')
-
+    plot = go.Bar(x = data['percents'], y = data['amount'], name = 'fact')
     graph = {
-        'data': [plot],
-        'layout': layout
-    }
+            'data': [plot],
+            'layout': layout
+        }
+
+    # BUTTON
+    flag = button is not None and 1000 * datetime.now().timestamp() - button < BUTTON_DELAY
     if flag:
-        out.loc[out['prob'] >= rate].sort_values(by = ['prob'], ascending = True)
+        args = {
+            'from': dt_min,
+            'to': dt_max
+        }
+        if region is not None: args['region'] = region
+        if states_list is not None and states_list != []: args['states'] = states
+        s = churn_search_object(filters = args, rate = rate)
+        out = get_df_by_rate(s)
         name = '{}_{}_{}_{}.csv'.format('all' if states_list is None or states_list == [] else '-'.join(states_list), dt_min, dt_max, int(100 * rate))
         out.to_csv(name, index = False)
         txt = '## Saved {} rows'.format(out.shape[0])
     else: txt = ''
-    return graph, txt, graph_2
+
+    # MONHLY COMPARISON PLOT
+    dates = [str(datetime(2017,1,1).date() + relativedelta(months = +i)) for i in range(23)]
+
+    ratios = np.array([
+        1.1, 0.9, 0.95, 1.03, 1.01, 0.92, 0.98, 1.1, 1.1, 1.1, 1.05, 1.02, 1.07, 0.93, 1.02, 1.08, 1.01, 1.1, 0.9, 0.92, 0.93, 1
+    ])
+    avg = data['avg_value']
+    churn_rate = ratios * avg
+
+    plot = go.Bar(x = dates, y = churn_rate * 100, name = 'churn rate')
+    graph_m = {
+        'data': [plot],
+        'layout': layout2
+    }
+
+
+    return graph, txt, graph_m
 #---------------------------------------------------------
 #                   BUCKET ANALYSIS
 #---------------------------------------------------------

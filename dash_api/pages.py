@@ -1032,9 +1032,9 @@ tabs = dcc.Tabs(
     children = [
         dcc.Tab(children = churn_predictor(), label = 'Churn Predictor', value = 'tab-1', style = tab_style, selected_style = tab_selected_style),
         dcc.Tab(children = bucket_analysis(), label = 'Correlative Targeting', value = 'tab-2', style = tab_style, selected_style = tab_selected_style),
-        dcc.Tab(children = sales_forecasting(), label = 'Sales Forecasting', value = 'tab-3', style=tab_style, selected_style=tab_selected_style),
-        dcc.Tab(children = purchase_propensity(), label = 'Purchase Propensity', value='tab-4', style=tab_style, selected_style=tab_selected_style),
-        dcc.Tab(children = mix_modeler(), label = 'Mix Modeler', value='tab-5', style=tab_style, selected_style=tab_selected_style),
+        dcc.Tab(children = purchase_propensity(), label = 'Purchase Propensity', value='tab-3', style=tab_style, selected_style=tab_selected_style),
+        dcc.Tab(children = mix_modeler(), label = 'Mix Modeler', value='tab-4', style=tab_style, selected_style=tab_selected_style),
+        dcc.Tab(children = sales_forecasting(), label = 'Sales Forecasting', value = 'tab-5', style=tab_style, selected_style=tab_selected_style),
     ],
     style=tabs_styles,
     className='row'
