@@ -1,7 +1,7 @@
 import dash_html_components as html
 import dash_core_components as dcc
 from dash_table import DataTable
-from controls import REGIONS, STATES, PRODUCTS
+from controls import REGIONS, STATES, PRODUCTS, PRODUCTS_GROUPS
 import datetime as dt
 #from bucket_analysis import bucket_an
 
@@ -11,6 +11,7 @@ region_options = [{'label': str(region), 'value': str(region)}
 
 
 product_options = [{'label': product, 'value': product} for  product in PRODUCTS]
+prod_gr_options = [{'label': product, 'value': product} for  product in PRODUCTS_GROUPS]
 
 tabs_styles = {
     'height': '44px'
@@ -560,10 +561,10 @@ def purchase_propensity():
                 style={'margin-bottom': 5}
             ),
             dcc.Dropdown(
-                id='propensity_product',
-                options = product_options,
+                id = 'propensity_product',
+                options = prod_gr_options,
                 multi=False,
-                value=product_options[0]['label']
+                value = prod_gr_options[0]['label']
             ),
         ],
         className='two columns',
@@ -587,7 +588,24 @@ def purchase_propensity():
         className='row'
     )
 
-    # LEFT TABLE
+    # PLOT
+    comparison_plot = html.Div(
+        [
+            # html.H5(
+            #     'Choose period, location and period to forecast. After that wait for few seconds.'
+            # ),
+            dcc.Graph(
+                id='propensity_graph'
+            )
+        ],
+        className='seven columns',
+        style={
+            'margin-top': 50,
+            'margin-left': 20
+        }
+    )
+
+    # TABLE
     l_drop = html.Div(
         [
             html.P(
@@ -617,7 +635,7 @@ def purchase_propensity():
         style={'margin-left': 315},
         className='two columns'
     )
-    left_table = html.Div(
+    table = html.Div(
         [
             html.H5('TOP customers by score:'),
             html.Div(
@@ -649,73 +667,10 @@ def purchase_propensity():
         }
     )
 
-    # RIGHT TABLE
-    r_drop = html.Div(
-        [
-            html.P(
-                'Number of customers:',
-                style={'margin-bottom': 5}
-            ),
-            dcc.Dropdown(
-                id='propensity_drop_dockets',
-                options=[{'label': 5 * i, 'value': 5 * i} for i in range(1, 21)],
-                value=10
-            )
-        ],
-        className='three columns'
-    )
-    r_search = html.Div(
-        [
-            html.P(
-                'Find customer:',
-                style={'margin-bottom': 5}
-            ),
-            dcc.Input(
-                id='propensity_search_dockets',
-                value='',
-                type='text'
-            ),
-        ],
-        style={'margin-left': 315},
-        className='two columns'
-    )
-    right_table = html.Div(
-        [
-            html.H5('Customers with the highest propensity (TOP 5 products):'),
-            html.Div(
-                [
-                    r_drop,
-                    r_search
-                ],
-                className='row'
-            ),
-            DataTable(
-                id='propensity_dockets',
-                columns=[{'name': i if i != 'Dockets' else '%', 'id': i} for i in
-                         ['Number', 'Customer Email', 'Product Name', 'Score, %']],
-                style_table={
-                    'overflowY': 'scroll',
-                    'height': '300px',
-                    #                    'width': '300px',
-                    'margin-top': 10
-                },
-                style_cell={'textAlign': 'center'},
-                style_header={
-                    'backgroundColor': 'white',
-                    'fontWeight': 'bold'
-                },
-            )
-        ],
-        className='five columns',
-        style={
-            'margin-top': 20,
-            'margin-left': 200
-        }
-    )
     tables = html.Div(
         [
-            left_table,
-            right_table
+            comparison_plot,
+            table
         ],
         className='row'
     )

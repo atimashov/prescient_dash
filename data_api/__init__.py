@@ -24,6 +24,11 @@ from churn_rate import churn_search_object
 from churn_rate import churn_agg
 from churn_rate import churn_repackage
 
+from purchase_propensity import propensity_search_object
+from purchase_propensity import propensity_agg
+from purchase_propensity import propensity_repackage
+from purchase_propensity import propensity_list
+
 app = Flask(__name__)
 
 def load_args(request):
@@ -50,6 +55,8 @@ def load_args(request):
     # subscribers_type
     res['subscr_type'] = request.args.get('subscr_type', 'cumulative')
     if res['subscr_type'] not in ['monthly', 'guests', 'registered_by']: res['subscr_type'] = 'cumulative'
+
+    res['n'] = request.args.get('number', 1000)
     return res
 
 
@@ -105,6 +112,28 @@ def churn_rate():
     print(s.to_dict())
     out = s.execute().to_dict()['aggregations']
     out = churn_repackage(out)
+    return jsonify(out)
+
+
+@app.route("/purchase_propensity")
+def purchase_propensity():
+    args = load_args(request)
+    # for plot
+    s = propensity_search_object(filters = args, last_month = False)
+    s = propensity_agg(s, args)
+    logging.warning('')
+    logging.warning(json.dumps(s.to_dict()))
+    logging.warning('')
+    aggs = s.execute().to_dict()['aggregations']
+
+    # for table
+    s = propensity_search_object(filters = args, last_month = True)
+    s = propensity_list(s, args)
+    logging.warning('')
+    logging.warning(json.dumps(s.to_dict()))
+    logging.warning('')
+    hits = s.execute().to_dict()['hits']['hits']
+    out = propensity_repackage(aggs, hits, args.get('products', 'OTHER'))
     return jsonify(out)
 
 
