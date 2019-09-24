@@ -41,11 +41,9 @@ def bucket_search_object(
     must_query.append(q)
 
     # products
-    if filters.get('product', None) is not None and filters.get('product', None) != ['']:
-        tt = []
-        for product in filters['product']:
-            tt.append(Q('match', **{'cart.name': product}))
-        must_query.append(Q('nested', path='cart', query=Q('bool', should = tt)))
+    if filters.get('product', None) is not None:
+        q = Q('match', **{'cart.name': filters['product']})
+        must_query.append(Q('nested', path = 'cart', query = Q('bool', must = [q])))
     #--------------------------
     #        SEARCH
     #--------------------------
@@ -69,11 +67,11 @@ def repackage_bucket(aggs, filters):
     dockets = pd.DataFrame(list(map(lambda x: {'Product Name': x['key'], 'Dockets': x['doc_count']}, tmp))).sort_values(by = 'Dockets', ascending = False)
 
     if 'product' in filters and filters['product'] != None:
-        sales_max = sales.loc[sales['Product Name'] == filters['product'][0], 'Sales (RM)'].values[0]
-        sales = sales.loc[sales['Product Name'] != filters['product'][0]]
+        sales_max = sales.loc[sales['Product Name'] == filters['product'], 'Sales (RM)'].values[0]
+        sales = sales.loc[sales['Product Name'] != filters['product']]
         sales['Sales (RM)'] = list(map(lambda x: round(x, 2), 100 * sales['Sales (RM)'] / sales_max))
-        dockets_max = dockets.loc[dockets['Product Name'] == filters['product'][0], 'Dockets'].values[0]
-        dockets = dockets.loc[dockets['Product Name'] != filters['product'][0]]
+        dockets_max = dockets.loc[dockets['Product Name'] == filters['product'], 'Dockets'].values[0]
+        dockets = dockets.loc[dockets['Product Name'] != filters['product']]
         dockets['Dockets'] = list(map(lambda x: round(x, 2), 100 * dockets['Dockets'] / dockets_max))
     else:
         sales['Sales (RM)'] = list(map(lambda x: round(x, 2), 100 * sales['Sales (RM)'] / sales['Sales (RM)'].sum()))

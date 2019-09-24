@@ -244,6 +244,93 @@ def update_figure_forecast(
     }
     return graph, txt, graph_m
 
+
+#---------------------------------------------------------
+#          Correlative Targeting (BUCKET ANALYSIS)
+#---------------------------------------------------------
+@app.callback(
+    Output(component_id='bucket_states', component_property='options'),
+    [Input(component_id='bucket_regions', component_property='value')]
+)
+def update_state1(selected_region):
+    return [{'label': state, 'value': state} for state in REGIONS[selected_region] if state not in ['WP (Putrajaya)', 'WP (Labuan)', 'Perlis']]
+
+
+
+@app.callback(
+    Output('bucket_sales', 'data'),
+    [
+        Input('year_text', 'children'),
+        Input('bucket_regions', 'value'),
+        Input('bucket_states', 'value'),
+        Input('bucket_product', 'value'),
+        Input('bucket_drop_sales', 'value'),
+        Input('bucket_search_sales', 'value')
+    ]
+)
+def update_figure(dates_text, region, states_list, product, drop_value, search):
+    dt_min, dt_max = dates_text.split(' | ')
+    url_bucket = '{}/bucket_analysis?from={}&to={}'.format(MAIN_URL, dt_min, dt_max)
+    if region is not None:
+        url_bucket = '{}&region={}'.format(url_bucket, region.replace(' ', '_'))
+    if states_list is not None and states_list != []:
+        url_bucket = '{}&states={}'.format(url_bucket, ','.join(states_list))
+    if product is not None:
+        url_bucket = '{}&product={}'.format(url_bucket, product.replace(' ', '%20'))
+
+    print()
+    print('++++++++++++++++: ', url_bucket)
+    print()
+
+
+    with urllib.request.urlopen(url_bucket) as url:
+        data = json.loads(url.read().decode())
+
+    df = pd.DataFrame(data['Sales']).sort_values(by = 'Sales (RM)', ascending = False)
+    if search != '':
+        cond = pd.Series(map(lambda x: search.lower() in x.lower(), df['Product Name']))
+        df = df.loc[cond]
+    df = df.reset_index()
+    del df['index']
+    if drop_value is None: drop_value = 1000
+    return df.loc[df.index < drop_value].to_dict('records')
+
+
+@app.callback(
+    Output('bucket_dockets', 'data'),
+    [
+        Input('year_text', 'children'),
+        Input('bucket_regions', 'value'),
+        Input('bucket_states', 'value'),
+        Input('bucket_product', 'value'),
+        Input('bucket_drop_dockets', 'value'),
+        Input('bucket_search_dockets', 'value')
+    ]
+)
+def update_figure(dates_text, region, states_list, product, drop_value, search):
+
+    dt_min, dt_max = dates_text.split(' | ')
+    url_bucket = '{}/bucket_analysis?from={}&to={}'.format(MAIN_URL, dt_min, dt_max)
+    if region is not None:
+        url_bucket = '{}&region={}'.format(url_bucket, region.replace(' ', '_'))
+    if states_list is not None and states_list != []:
+        url_bucket = '{}&states={}'.format(url_bucket, ','.join(states_list))
+    if product is not None:
+        url_bucket = '{}&products={}'.format(url_bucket, product.replace(' ', '%20'))
+
+    with urllib.request.urlopen(url_bucket) as url:
+        data = json.loads(url.read().decode())
+
+    df = pd.DataFrame(data['Counts']).sort_values(by = 'Dockets', ascending = False)
+    if search != '':
+        cond = pd.Series(map(lambda x: search.lower() in x.lower(), df['Product Name']))
+        df = df.loc[cond]
+    df = df.reset_index()
+    del df['index']
+    if drop_value is None: drop_value = 1000
+    return df.loc[df.index < drop_value].to_dict('records')
+
+
 # --------------------------------------------
 #            Purchase Propensity
 # --------------------------------------------
@@ -358,85 +445,7 @@ def update_propensity(
 
 
 
-#---------------------------------------------------------
-#                   BUCKET ANALYSIS
-#---------------------------------------------------------
-@app.callback(
-    Output(component_id='bucket_states', component_property='options'),
-    [Input(component_id='bucket_regions', component_property='value')]
-)
-def update_state1(selected_region):
-    return [{'label': state, 'value': state} for state in REGIONS[selected_region] if state not in ['WP (Putrajaya)', 'WP (Labuan)', 'Perlis']]
 
-
-
-@app.callback(
-    Output('bucket_sales', 'data'),
-    [
-        Input('year_text', 'children'),
-        Input('bucket_regions', 'value'),
-        Input('bucket_states', 'value'),
-        Input('bucket_product', 'value'),
-        Input('bucket_drop_sales', 'value'),
-        Input('bucket_search_sales', 'value')
-    ]
-)
-def update_figure(dates_text, region, states_list, product, drop_value, search):
-    dt_min, dt_max = dates_text.split(' | ')
-    url_bucket = '{}/bucket_analysis?from={}&to={}'.format(MAIN_URL, dt_min, dt_max)
-    if region is not None:
-        url_bucket = '{}&region={}'.format(url_bucket, region.replace(' ', '_'))
-    if states_list is not None and states_list != []:
-        url_bucket = '{}&states={}'.format(url_bucket, ','.join(states_list))
-    if product is not None:
-        url_bucket = '{}&products={}'.format(url_bucket, product.replace(' ', '%20'))
-
-    with urllib.request.urlopen(url_bucket) as url:
-        data = json.loads(url.read().decode())
-
-    df = pd.DataFrame(data['Sales']).sort_values(by = 'Sales (RM)', ascending = False)
-    if search != '':
-        cond = pd.Series(map(lambda x: search.lower() in x.lower(), df['Product Name']))
-        df = df.loc[cond]
-    df = df.reset_index()
-    del df['index']
-    if drop_value is None: drop_value = 1000
-    return df.loc[df.index < drop_value].to_dict('records')
-
-
-@app.callback(
-    Output('bucket_dockets', 'data'),
-    [
-        Input('year_text', 'children'),
-        Input('bucket_regions', 'value'),
-        Input('bucket_states', 'value'),
-        Input('bucket_product', 'value'),
-        Input('bucket_drop_dockets', 'value'),
-        Input('bucket_search_dockets', 'value')
-    ]
-)
-def update_figure(dates_text, region, states_list, product, drop_value, search):
-
-    dt_min, dt_max = dates_text.split(' | ')
-    url_bucket = '{}/bucket_analysis?from={}&to={}'.format(MAIN_URL, dt_min, dt_max)
-    if region is not None:
-        url_bucket = '{}&region={}'.format(url_bucket, region.replace(' ', '_'))
-    if states_list is not None and states_list != []:
-        url_bucket = '{}&states={}'.format(url_bucket, ','.join(states_list))
-    if product is not None:
-        url_bucket = '{}&products={}'.format(url_bucket, product.replace(' ', '%20'))
-
-    with urllib.request.urlopen(url_bucket) as url:
-        data = json.loads(url.read().decode())
-
-    df = pd.DataFrame(data['Counts']).sort_values(by = 'Dockets', ascending = False)
-    if search != '':
-        cond = pd.Series(map(lambda x: search.lower() in x.lower(), df['Product Name']))
-        df = df.loc[cond]
-    df = df.reset_index()
-    del df['index']
-    if drop_value is None: drop_value = 1000
-    return df.loc[df.index < drop_value].to_dict('records')
 
 # --------------------------------------------
 #                    Forecasting

@@ -48,6 +48,10 @@ def load_args(request):
     product = request.args.get('product', None)
     if product is not None:  res['product'] = product
 
+    print()
+    print('QQQ:   ', product)
+    print()
+
     # plot type
     res['plot_type'] = request.args.get('plot_type', 'all')
     if res['plot_type'] not in ['monthly', 'daily', 'hourly', 'weekdaily']: res['plot_type'] = 'all'
@@ -92,10 +96,10 @@ def bucket_analysis():
     #s = agg_ticket_amount(s)
     s = s[:0]
     logging.warning('')
-    logging.warning('*********************************************************************************')
-    logging.warning('')
+    logging.warning('---BUCKET ANALYSIS---')
     logging.warning(json.dumps(s.to_dict()))
-    print(s.to_dict())
+    logging.warning('')
+
     out = s.execute().to_dict()['aggregations']
     out = repackage_bucket(out, args)
     return jsonify(out)
