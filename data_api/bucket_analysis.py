@@ -70,6 +70,7 @@ def repackage_bucket(aggs, filters):
         sales_max = sales.loc[sales['Product Name'] == filters['product'], 'Sales (RM)'].values[0]
         sales = sales.loc[sales['Product Name'] != filters['product']]
         sales['Sales (RM)'] = list(map(lambda x: round(x, 2), 100 * sales['Sales (RM)'] / sales_max))
+
         dockets_max = dockets.loc[dockets['Product Name'] == filters['product'], 'Dockets'].values[0]
         dockets = dockets.loc[dockets['Product Name'] != filters['product']]
         dockets['Dockets'] = list(map(lambda x: round(x, 2), 100 * dockets['Dockets'] / dockets_max))
