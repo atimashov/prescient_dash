@@ -71,14 +71,10 @@ def propensity_repackage(aggs, hits, product):
     }
 
     # hits
-    f = lambda x: {
-        'Customer Email': x['_source']['email'],
-        'Score, %': x['_source']['score'][product]
-    }
     df = pd.DataFrame({
         'Number': list(range(1, len(hits) + 1)),
         'Customer Email': list(map(lambda x: x['_source']['email'], hits)),
-        'Score, %': list(map(lambda x: round(100 * x['_source']['score'][product], 2), hits))
+        'Score, %': list(map(lambda x: round(100 * ((x['_source']['score'][product] - 0.5) * 0.88 + 0.5 if x['_source']['score'][product] > 0.5 else 0.5 - 0.88 * (0.5 - x['_source']['score'][product])), 3), hits))
     })
     out['list'] = df.to_dict('records')
 

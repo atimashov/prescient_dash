@@ -54,7 +54,7 @@ def propensity_repackage(hits, product):
         'email': x['_source']['email'],
         'state': x['_source']['state'],
         'first_activity': x['_source']['first_activity'],
-        'score_{}'.format(product): x['_source']['score'][product]
+        'score_{}'.format(product): (x['_source']['score'][product] - 0.5) * 0.88 + 0.5 if x['_source']['score'][product] > 0.5 else 0.5 - 0.88 * (0.5 - x['_source']['score'][product])
     }
     df = pd.DataFrame(list(map(f, hits)))
     return df
