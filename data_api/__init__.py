@@ -45,9 +45,8 @@ def load_args(request):
     states = states.split(',')
     if states != ['all']: res['states'] = states
 
-    products = request.args.get('products', 'all')
-    products = products.split(',')
-    if products != ['all']:  res['products'] = products
+    product = request.args.get('product', None)
+    if product is not None:  res['products'] = product
 
     # plot type
     res['plot_type'] = request.args.get('plot_type', 'all')
@@ -56,7 +55,9 @@ def load_args(request):
     res['subscr_type'] = request.args.get('subscr_type', 'cumulative')
     if res['subscr_type'] not in ['monthly', 'guests', 'registered_by']: res['subscr_type'] = 'cumulative'
 
-    res['n'] = request.args.get('number', 1000)
+    n = request.args.get('number', 1000)
+    print('** ', n)
+    res['n'] = int(n if n is not None and n != 'None' else 100)
     return res
 
 
@@ -133,7 +134,7 @@ def purchase_propensity():
     logging.warning(json.dumps(s.to_dict()))
     logging.warning('')
     hits = s.execute().to_dict()['hits']['hits']
-    out = propensity_repackage(aggs, hits, args.get('products', 'OTHER'))
+    out = propensity_repackage(aggs, hits, args.get('product', 'OTHER'))
     return jsonify(out)
 
 

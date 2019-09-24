@@ -376,7 +376,6 @@ def bucket_analysis():
         className='row'
     )
 
-
     page = html.Div(
         [
             html.H2(
@@ -613,7 +612,7 @@ def purchase_propensity():
                 style={'margin-bottom': 5}
             ),
             dcc.Dropdown(
-                id='propensity_drop_sales',
+                id='propensity_drop_number',
                 options=[{'label': 5 * i, 'value': 5 * i} for i in range(1, 21)],
                 value=10
             )
@@ -627,7 +626,7 @@ def purchase_propensity():
                 style={'margin-bottom': 5}
             ),
             dcc.Input(
-                id='propensity_search_sales',
+                id='propensity_search',
                 value='',
                 type='text'
             ),
@@ -646,7 +645,7 @@ def purchase_propensity():
                 className = 'row'
             ),
             DataTable(
-                id='propensity_sales',
+                id='propensity_score',
                 columns=[{'name': i, 'id': i} for i in ['Number', 'Customer Email', 'Score, %']],
                 style_table={
                     'overflowY': 'scroll',

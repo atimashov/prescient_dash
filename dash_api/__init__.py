@@ -237,9 +237,134 @@ def update_figure_forecast(
         'data': [plot],
         'layout': layout2
     }
-
-
     return graph, txt, graph_m
+
+# --------------------------------------------
+#            Purchase Propensity
+# --------------------------------------------
+@app.callback(
+    Output(component_id = 'propensity_states', component_property='options'),
+    [Input(component_id = 'propensity_regions', component_property='value')]
+)
+def update_state(selected_region):
+    return [{'label': state, 'value': state} for state in REGIONS[selected_region] if
+            state not in ['WP (Putrajaya)', 'WP (Labuan)', 'Perlis']]
+
+
+@app.callback(
+    [
+        Output('propensity_graph', 'figure'),
+        # Output('churn_text', 'children'),
+        Output('propensity_score', 'data')
+    ],
+
+    [
+        Input('year_text', 'children'),
+        Input('propensity_regions', 'value'),
+        Input('propensity_states', 'value'),
+        Input('propensity_product', 'value'),
+        Input('propensity_drop_number', 'value'),
+        Input('propensity_search', 'value'),
+        Input('propensity_button', 'n_clicks_timestamp'),
+    ]
+)
+def update_propensity(
+        dates_text, region, states_list, product, drop, search, button
+):
+    layout = go.Layout(
+        autosize=False,
+        width=1050,  # 1820, #800, #
+        height=500,
+        title='Sales (fact & plan)',
+        xaxis={
+            'title': 'date',
+            'ticklen': 5,
+            'gridwidth': 2,
+        },
+        yaxis={
+            'title': 'sales, RM',
+            'ticklen': 5,
+            'gridwidth': 2,
+        },
+        margin=go.layout.Margin(
+            l=110,
+            r=110,
+            b=50,
+            t=50,
+            pad=4
+        )
+    )
+
+#   PLOT
+    dt_min, dt_max = dates_text.split(' | ')
+    url_propensity = '{}/purchase_propensity?from={}&to={}'.format(MAIN_URL, dt_min, dt_max)
+    if region is not None:
+        url_propensity = '{}&region={}'.format(url_propensity, region.replace(' ', '_'))
+    if states_list is not None and states_list != []:
+        url_propensity = '{}&states={}'.format(url_propensity, ','.join(states_list))
+    if product is not None:
+        url_propensity = '{}&product={}'.format(url_propensity, product)
+    url_propensity = '{}&number={}'.format(url_propensity, drop)
+    print('')
+    print('')
+    print('')
+    with urllib.request.urlopen(url_propensity) as url:
+        data = json.loads(url.read().decode())
+
+    plot = go.Bar(
+        x = list(map(lambda x: x['date'], data['aggs'])),
+        y = list(map(lambda x: x['avg_value'], data['aggs'])),
+        name = 'fact'
+    )
+    graph = {
+            'data': [plot],
+            'layout': layout
+        }
+#
+#     # BUTTON
+#     flag = button is not None and 1000 * datetime.now().timestamp() - button < BUTTON_DELAY
+#     if flag:
+#         args = {
+#             'from': dt_min,
+#             'to': dt_max
+#         }
+#         if region is not None: args['region'] = region
+#         if states_list is not None and states_list != []: args['states'] = states
+#         s = churn_search_object(filters = args, rate = rate)
+#         out = get_df_by_rate(s)
+#         name = '{}_{}_{}_{}.csv'.format('all' if states_list is None or states_list == [] else '-'.join(states_list), dt_min, dt_max, int(100 * rate))
+#         out.to_csv(name, index = False)
+#         txt = '## Saved {} rows'.format(out.shape[0])
+#     else: txt = ''
+#
+    df = pd.DataFrame(data['list'])
+    if search != '':
+        cond = pd.Series(map(lambda x: search.lower() in x.lower(), df['Customer Email']))
+        df = df.loc[cond]
+    df = df.reset_index()
+    del df['index']
+    if drop is None: drop = 20
+    table =  df.loc[df.index < drop].to_dict('records')
+
+
+#     # MONHLY COMPARISON PLOT
+#     dates = [str(datetime(2017,1,1).date() + relativedelta(months = +i)) for i in range(23)]
+#
+#     ratios = np.array([
+#         1.1, 0.9, 0.95, 1.03, 1.01, 0.92, 0.98, 1.1, 1.1, 1.1, 1.05, 1.02, 1.07, 0.93, 1.02, 1.08, 1.01, 1.1, 0.9, 0.92, 0.93, 1
+#     ])
+#     avg = data['avg_value']
+#     churn_rate = ratios * avg
+#
+#     plot = go.Bar(x = dates, y = churn_rate * 100, name = 'churn rate')
+#     graph_m = {
+#         'data': [plot],
+#         'layout': layout2
+#     }
+    return graph, table
+
+
+
 #---------------------------------------------------------
 #                   BUCKET ANALYSIS
 #---------------------------------------------------------
@@ -451,17 +576,6 @@ def update_figure_forecast(
     print(table)
 
     return graph_new, table
-
-# --------------------------------------------
-#            Purchase Propensity
-# --------------------------------------------
-@app.callback(
-    Output(component_id='propensity_states', component_property='options'),
-    [Input(component_id='propensity_regions', component_property='value')]
-)
-def update_state(selected_region):
-    return [{'label': state, 'value': state} for state in REGIONS[selected_region] if
-            state not in ['WP (Putrajaya)', 'WP (Labuan)', 'Perlis']]
 
 #--------------------------------------------
 #                Mix Modeler
