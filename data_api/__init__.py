@@ -46,7 +46,7 @@ def load_args(request):
     if states != ['all']: res['states'] = states
 
     product = request.args.get('product', None)
-    if product is not None:  res['products'] = product
+    if product is not None:  res['product'] = product
 
     # plot type
     res['plot_type'] = request.args.get('plot_type', 'all')

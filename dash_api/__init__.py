@@ -20,6 +20,11 @@ from controls import REGIONS, STATES, PRODUCTS
 from churn_rate import churn_search_object
 from churn_rate import get_df_by_rate
 
+from purchase_propensity import propensity_search_object
+from purchase_propensity import propensity_repackage
+
+
+
 from time import sleep
 BUTTON_DELAY = 1000
 URL_TXT = 'dash_api/storage.txt'
@@ -171,14 +176,14 @@ def update_figure_forecast(
         autosize=False,
         width=1820,
         height=500,
-        title='Churn rate monthly',
+        title='Churn rate (monthly)',
         xaxis={
             'title': 'month',
             'ticklen': 5,
             'gridwidth': 2,
         },
         yaxis={
-            'title': 'churn probability, %',
+            'title': 'churn rate, %',
             'ticklen': 5,
             'gridwidth': 2,
         },
@@ -254,7 +259,7 @@ def update_state(selected_region):
 @app.callback(
     [
         Output('propensity_graph', 'figure'),
-        # Output('churn_text', 'children'),
+        Output('propensity_text', 'children'),
         Output('propensity_score', 'data')
     ],
 
@@ -273,16 +278,16 @@ def update_propensity(
 ):
     layout = go.Layout(
         autosize=False,
-        width=1050,  # 1820, #800, #
-        height=500,
-        title='Sales (fact & plan)',
+        width = 900,  # 1820, #800, #
+        height = 400,
+        title = 'Purchase Propensity rate (monthly)',
         xaxis={
             'title': 'date',
             'ticklen': 5,
             'gridwidth': 2,
         },
         yaxis={
-            'title': 'sales, RM',
+            'title': 'purchase propensity rate, %',
             'ticklen': 5,
             'gridwidth': 2,
         },
@@ -313,29 +318,32 @@ def update_propensity(
 
     plot = go.Bar(
         x = list(map(lambda x: x['date'], data['aggs'])),
-        y = list(map(lambda x: x['avg_value'], data['aggs'])),
+        y = list(map(lambda x: round(100 * x['avg_value'], 2), data['aggs'])),
         name = 'fact'
     )
     graph = {
             'data': [plot],
             'layout': layout
         }
-#
-#     # BUTTON
-#     flag = button is not None and 1000 * datetime.now().timestamp() - button < BUTTON_DELAY
-#     if flag:
-#         args = {
-#             'from': dt_min,
-#             'to': dt_max
-#         }
-#         if region is not None: args['region'] = region
-#         if states_list is not None and states_list != []: args['states'] = states
-#         s = churn_search_object(filters = args, rate = rate)
-#         out = get_df_by_rate(s)
-#         name = '{}_{}_{}_{}.csv'.format('all' if states_list is None or states_list == [] else '-'.join(states_list), dt_min, dt_max, int(100 * rate))
-#         out.to_csv(name, index = False)
-#         txt = '## Saved {} rows'.format(out.shape[0])
-#     else: txt = ''
+
+    # BUTTON
+    flag = button is not None and 1000 * datetime.now().timestamp() - button < BUTTON_DELAY
+    if flag:
+        args = {
+            'from': dt_min,
+            'to': dt_max,
+            'product': product,
+            'n': 1000
+        }
+        if region is not None: args['region'] = region
+        if states_list is not None and states_list != []: args['states'] = states_list
+        s = propensity_search_object(filters = args)
+        hits = s.execute().to_dict()['hits']['hits']
+        df = propensity_repackage(hits, product)
+        name = '{}_{}_{}_{}.csv'.format('all' if states_list is None or states_list == [] else '-'.join(states_list), dt_min, dt_max, product)
+        df.to_csv(name, index = False)
+        txt = '## Saved {} rows'.format(df.shape[0])
+    else: txt = ''
 #
     df = pd.DataFrame(data['list'])
     if search != '':
@@ -346,22 +354,7 @@ def update_propensity(
     if drop is None: drop = 20
     table =  df.loc[df.index < drop].to_dict('records')
 
-
-#     # MONHLY COMPARISON PLOT
-#     dates = [str(datetime(2017,1,1).date() + relativedelta(months = +i)) for i in range(23)]
-#
-#     ratios = np.array([
-#         1.1, 0.9, 0.95, 1.03, 1.01, 0.92, 0.98, 1.1, 1.1, 1.1, 1.05, 1.02, 1.07, 0.93, 1.02, 1.08, 1.01, 1.1, 0.9, 0.92, 0.93, 1
-#     ])
-#     avg = data['avg_value']
-#     churn_rate = ratios * avg
-#
-#     plot = go.Bar(x = dates, y = churn_rate * 100, name = 'churn rate')
-#     graph_m = {
-#         'data': [plot],
-#         'layout': layout2
-#     }
-    return graph, table
+    return graph, txt, table
 
 
 

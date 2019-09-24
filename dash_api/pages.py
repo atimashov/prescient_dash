@@ -590,22 +590,22 @@ def purchase_propensity():
     # PLOT
     comparison_plot = html.Div(
         [
-            # html.H5(
-            #     'Choose period, location and period to forecast. After that wait for few seconds.'
-            # ),
+            html.H5(
+                'Choose location and product to see the plot.'
+            ),
             dcc.Graph(
                 id='propensity_graph'
             )
         ],
-        className='seven columns',
+        className='six columns',
         style={
-            'margin-top': 50,
+            'margin-top': 20,
             'margin-left': 20
         }
     )
 
     # TABLE
-    l_drop = html.Div(
+    drop = html.Div(
         [
             html.P(
                 'Number of customers:',
@@ -619,7 +619,7 @@ def purchase_propensity():
         ],
         className='three columns'
     )
-    l_search = html.Div(
+    search = html.Div(
         [
             html.P(
                 'Find customer:',
@@ -639,8 +639,8 @@ def purchase_propensity():
             html.H5('TOP customers by score:'),
             html.Div(
                 [
-                    l_drop,
-                    l_search
+                    drop,
+                    search
                 ],
                 className = 'row'
             ),
@@ -683,11 +683,19 @@ def purchase_propensity():
                 }
             ),
             filters,
+            html.Div(
+                [
+                    dcc.Markdown(id='propensity_text')
+                ],
+                style={
+                    'color': 'red',
+                    #'margin-top': 20,
+                    'margin-left': 20,
+                    'textAlign': 'left'
+                }
+            ),
             tables
-        ],
-        # style = {
-        #     'backgroundColor':'#d3d3d3'
-        # }
+        ]
     )
     return page
 
