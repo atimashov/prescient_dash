@@ -13,24 +13,35 @@ region_options = [{'label': str(region), 'value': str(region)}
 product_options = [{'label': product, 'value': product} for  product in PRODUCTS]
 prod_gr_options = [{'label': product, 'value': product} for  product in PRODUCTS_GROUPS]
 
-tabs_styles = {
-    'height': '44px'
+FONT = 'sans-serif'
+MAIN_COLOR = '#0074D9'
+
+tab_style = {
+    'borderTop': '1px solid #d6d6d6',
+    'borderBottom': '1px solid #d6d6d6',
+    'fontWeight': '800',
+    'font-family': FONT,
+    'font-size': 18,
+    'backgroundColor': '#f2f2f2', ##103350',
+    'color': '#103350', #'white',
+    'padding': '14px'
 }
 
+tabs_styles = {
+    'height': '60px'
+}
 
 tab_selected_style = {
     'borderTop': '1px solid #d6d6d6',
     'borderBottom': '1px solid #d6d6d6',
-    'backgroundColor': 'black',
-    'color': 'white',
-    'padding': '6px'
+    'fontWeight': '800',
+    'font-family': FONT,
+    'font-size': 18,
+    'backgroundColor': '#55bcad', # '#27b9f2',
+    'color': '#103350', #'black',
+    'padding': '14px'
 }
 
-tab_style = {
-    'borderBottom': '1px solid #d6d6d6',
-    'padding': '6px',
-    'fontWeight': 'bold'
-}
 
 def marks(i_min, i_max):
     dt_dict = dict()
@@ -68,7 +79,10 @@ def churn_predictor():
             ),
         ],
         className = 'four columns',
-        style = {'margin-left': 20}
+        style = {
+            'margin-left': 20
+
+        }
     )
     filter_state = html.Div(
         [
@@ -117,7 +131,10 @@ def churn_predictor():
             filter_days,
             button
         ],
-        className='row'
+        className='row',
+        style = {
+            'margin-top': 30
+        }
     )
     churn_graph = html.Div(
         [
@@ -156,7 +173,8 @@ def churn_predictor():
             html.H2(
                 'Churn Predictor',
                 style = {
-                    'margin-left': 20
+                    'margin-left': 20,
+                    'margin-top': 60
                 }
             ),
             filters,
@@ -294,7 +312,8 @@ def bucket_analysis():
                 },
                 style_cell={'textAlign': 'center'},
                 style_header={
-                    'backgroundColor': 'white',
+                    'backgroundColor': MAIN_COLOR,
+                    'color': 'white',
                     'fontWeight': 'bold'
                 },
             )
@@ -357,7 +376,8 @@ def bucket_analysis():
                 },
                 style_cell={'textAlign': 'center'},
                 style_header={
-                    'backgroundColor': 'white',
+                    'backgroundColor': MAIN_COLOR,
+                    'color': 'white',
                     'fontWeight': 'bold'
                 },
             )
@@ -492,7 +512,8 @@ def sales_forecasting():
                 },
                 style_cell={'textAlign': 'center'},
                 style_header={
-                    'backgroundColor': 'white',
+                    'backgroundColor': MAIN_COLOR,
+                    'color': 'white',
                     'fontWeight': 'bold'
                 },
             )
@@ -654,7 +675,8 @@ def purchase_propensity():
                 },
                 style_cell={'textAlign': 'center'},
                 style_header={
-                    'backgroundColor': 'white',
+                    'backgroundColor': MAIN_COLOR,
+                    'color': 'white',
                     'fontWeight': 'bold'
                 },
             )
@@ -899,7 +921,8 @@ def mix_modeler():
         ],
         className='four columns',
         style={
-            'backgroundColor': '#dcf2ff',
+            'backgroundColor': MAIN_COLOR,
+            'color': 'white',
             'width': 400,
             'height': 200,
             'margin-left': 120,
@@ -913,7 +936,8 @@ def mix_modeler():
         ],
         className='four columns',
         style={
-            'backgroundColor': '#dcf2ff',
+            'backgroundColor': MAIN_COLOR,
+            'color': 'white',
             'width': 400,
             'height': 200,
             'margin-left': 80,
@@ -928,7 +952,8 @@ def mix_modeler():
         ],
         className='four columns',
         style={
-            'backgroundColor': '#dcf2ff',
+            'backgroundColor': MAIN_COLOR,
+            'color': 'white',
             'width': 400,
             'height': 200,
             'margin-left': 80,
@@ -947,17 +972,200 @@ def mix_modeler():
         className='row'
     )
 
-    text_input = html.Div(
+    investment_input = html.Div(
         [
             html.P(
-                'Enter Amount in MYR:',
-                style={'margin-bottom': 5}
+                'Type investment in MYR:',
+                style = {'margin-bottom': 5}
             ),
-            dcc.Input(value = '100000', type='text')
+            dcc.Input(
+                id = 'mix_investment',
+                value = '1000000',
+                type = 'text'
+            ),
+        ],
+        className='row',
+        style = {
+            'margin-top': 20,
+            'margin-left': 20
+        }
+    )
+
+    # ----------------------
+    press = html.Div(
+        [
+            dcc.Markdown('## Press'),
+            dcc.Markdown(id='mix_press')
         ],
         className='four columns',
-        style={'margin-left': 20}
+        style={
+            'backgroundColor': MAIN_COLOR,
+            'color': 'white',
+            'width': 400,
+            'height': 120,
+            'margin-left': 120,
+            'textAlign': 'center'
+        }
     )
+    outdoor = html.Div(
+        [
+            dcc.Markdown('## Outdoor'),
+            dcc.Markdown(id='mix_outdoor')
+        ],
+        className='four columns',
+        style={
+            'backgroundColor': MAIN_COLOR,
+            'color': 'white',
+            'width': 400,
+            'height': 120,
+            'margin-left': 80,
+            'textAlign': 'center'
+        }
+    )
+    radio = html.Div(
+        [
+            dcc.Markdown('## Radio'),
+            dcc.Markdown(id='mix_radio')
+        ],
+        className='four columns',
+        style={
+            'backgroundColor': MAIN_COLOR,
+            'color': 'white',
+            'width': 400,
+            'height': 120,
+            'margin-left': 80,
+            'textAlign': 'center'
+        }
+    )
+    investment_output_1 = html.Div(
+        [
+            press,
+            outdoor,
+            radio
+        ],
+        style={
+            'margin-top': 20
+        },
+        className='row'
+    )
+
+    tv = html.Div(
+        [
+            dcc.Markdown('## TV'),
+            dcc.Markdown(id='mix_tv')
+        ],
+        className='four columns',
+        style={
+            'backgroundColor': MAIN_COLOR,
+            'color': 'white',
+            'width': 400,
+            'height': 120,
+            'margin-left': 120,
+            'textAlign': 'center'
+        }
+    )
+    programmatic = html.Div(
+        [
+            dcc.Markdown('## Programmatic'),
+            dcc.Markdown(id='mix_programmatic')
+        ],
+        className='four columns',
+        style={
+            'backgroundColor': MAIN_COLOR,
+            'color': 'white',
+            'width': 400,
+            'height': 120,
+            'margin-left': 80,
+            'textAlign': 'center'
+        }
+    )
+    search = html.Div(
+        [
+            dcc.Markdown('## Search'),
+            dcc.Markdown(id='mix_search')
+        ],
+        className='four columns',
+        style={
+            'backgroundColor': MAIN_COLOR,
+            'color': 'white',
+            'width': 400,
+            'height': 120,
+            'margin-left': 80,
+            'textAlign': 'center'
+        }
+    )
+    investment_output_2 = html.Div(
+        [
+            tv,
+            programmatic,
+            search
+        ],
+        style={
+            'margin-top': 20
+        },
+        className='row'
+    )
+
+    video = html.Div(
+        [
+            dcc.Markdown('## Video'),
+            dcc.Markdown(id='mix_video')
+        ],
+        className='four columns',
+        style={
+            'backgroundColor': MAIN_COLOR,
+            'color': 'white',
+            'width': 400,
+            'height': 120,
+            'margin-left': 120,
+            'textAlign': 'center'
+        }
+    )
+    youtube = html.Div(
+        [
+            dcc.Markdown('## Youtube'),
+            dcc.Markdown(id='mix_youtube')
+        ],
+        className='four columns',
+        style={
+            'backgroundColor': MAIN_COLOR,
+            'color': 'white',
+            'width': 400,
+            'height': 120,
+            'margin-left': 80,
+            'textAlign': 'center'
+        }
+    )
+    other_digital = html.Div(
+        [
+            dcc.Markdown('## Other Digital'),
+            dcc.Markdown(id='mix_other_digital')
+        ],
+        className='four columns',
+        style={
+            'backgroundColor': MAIN_COLOR,
+            'color': 'white',
+            'width': 400,
+            'height': 120,
+            'margin-left': 80,
+            'textAlign': 'center'
+        }
+    )
+    investment_output_3 = html.Div(
+        [
+            video,
+            youtube,
+            other_digital
+        ],
+        style={
+            'margin-top': 20,
+            'margin-down': 20,
+            'padding-down': 20
+        },
+        className='row'
+    )
+
+
 
 
     page = html.Div(
@@ -976,9 +1184,14 @@ def mix_modeler():
                 'Recommendation Plan',
                 style={
                     'margin-left': 20,
-                    'margin-top': 40
+                    'margin-top': 60
                 }
             ),
+            investment_input,
+            investment_output_1,
+            investment_output_2,
+            investment_output_3,
+            html.Div(style={'padding': 10})
         ],
         # style = {
         #     'backgroundColor':'#d3d3d3'
@@ -998,6 +1211,6 @@ tabs = dcc.Tabs(
         dcc.Tab(children = mix_modeler(), label = 'Mix Modeler', value='tab-4', style=tab_style, selected_style=tab_selected_style),
         dcc.Tab(children = sales_forecasting(), label = 'Sales Forecasting', value = 'tab-5', style=tab_style, selected_style=tab_selected_style),
     ],
-    style=tabs_styles,
-    className='row'
+    style = tabs_styles,
+    className = 'row'
 )

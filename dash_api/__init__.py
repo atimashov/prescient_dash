@@ -29,7 +29,8 @@ from time import sleep
 BUTTON_DELAY = 1000
 URL_TXT = 'dash_api/storage.txt'
 MAIN_URL = 'http://localhost:8000'
-
+FONT = 'sans-serif'
+MAIN_COLOR = '#0074D9'
 
 #app = dash.Dash(__name__)
 
@@ -48,18 +49,21 @@ logos = html.Div(
     [
         html.H1(
             'Prescient',
-            className = 'eight columns'
-        ),
-        html.Img(
-            src = 'https://raw.githubusercontent.com/timashov-ml/examples/master/Entropia-logo.png',
-            className = 'two columns',
+            className = 'eight columns',
             style = {
-                'height': '100',
-                'width': '305',
-                'float': 'right',
-                'position': 'relative',
-            },
+                'font-family': FONT
+            }
         ),
+        # html.Img(
+        #     src = 'https://raw.githubusercontent.com/timashov-ml/examples/master/Entropia-logo.png',
+        #     className = 'two columns',
+        #     style = {
+        #         'height': '100',
+        #         'width': '305',
+        #         'float': 'right',
+        #         'position': 'relative',
+        #     },
+        # ),
     ],
     style = {
         'margin-left': 10,
@@ -77,7 +81,7 @@ dates = html.Div(
                     min = 0,
                     max = (dt.datetime(2018,10,31).date() - dt.datetime(2017, 1, 1).date()).days, #in normal case choose NOW
                     value = [2, 133],
-                    marks = marks(0, (dt.datetime(2018,10,31).date() - dt.datetime(2017, 1, 1).date()).days),
+                    marks = marks(0, (dt.datetime(2018,10,31).date() - dt.datetime(2017, 1, 1).date()).days)
                 ),
             ],
             style = {'margin-left': '150', 'align': 'right'},#, 'padding': 30},
@@ -86,14 +90,23 @@ dates = html.Div(
         #html.H1(className='one column'),
         html.Div(
             [
-                html.P('Date range:', style = {'margin-bottom': 15}),
+                html.P(
+                    'Date range:',
+                    style = {
+                        #'margin-bottom': 15,
+                        'margin-top': 10
+                    }),
                 html.H6(
                     id = 'year_text',
                 )
             ],
             style = {
                 #'text-align': 'right',
-                'margin-top': '50'
+                #'margin-top': '50',
+                'padding-left': 16,
+                'backgroundColor': MAIN_COLOR,
+                'color': 'white',
+                'font-family': FONT
             },
             className = 'two columns'
         ),
@@ -206,7 +219,7 @@ def update_figure_forecast(
     with urllib.request.urlopen(url_churn) as url:
         data = json.loads(url.read().decode())
 
-    plot = go.Bar(x = data['percents'], y = data['amount'], name = 'fact')
+    plot = go.Bar(x = data['percents'], y = data['amount'], name = 'fact', marker_color = MAIN_COLOR)
     graph = {
             'data': [plot],
             'layout': layout
@@ -220,7 +233,7 @@ def update_figure_forecast(
             'to': dt_max
         }
         if region is not None: args['region'] = region
-        if states_list is not None and states_list != []: args['states'] = states
+        if states_list is not None and states_list != []: args['states'] = states_list
         s = churn_search_object(filters = args, rate = rate)
         out = get_df_by_rate(s)
         name = '{}_{}_{}_{}.csv'.format('all' if states_list is None or states_list == [] else '-'.join(states_list), dt_min, dt_max, int(100 * rate))
@@ -237,7 +250,7 @@ def update_figure_forecast(
     avg = data['avg_value']
     churn_rate = ratios * avg
 
-    plot = go.Bar(x = dates, y = churn_rate * 100, name = 'churn rate')
+    plot = go.Bar(x = dates, y = churn_rate * 100, name = 'churn rate', marker_color = MAIN_COLOR)
     graph_m = {
         'data': [plot],
         'layout': layout2
@@ -381,7 +394,8 @@ def update_propensity(
     plot = go.Bar(
         x = list(map(lambda x: x['date'], data['aggs'])),
         y = list(map(lambda x: round(100 * x['avg_value'], 2), data['aggs'])),
-        name = 'fact'
+        name = 'fact',
+        marker_color = MAIN_COLOR
     )
     graph = {
             'data': [plot],
@@ -417,9 +431,6 @@ def update_propensity(
     table =  df.loc[df.index < drop].to_dict('records')
 
     return graph, txt, table
-
-
-
 
 
 # --------------------------------------------
@@ -539,8 +550,8 @@ def update_figure_forecast(
             df = df.append(tmp, ignore_index=True)
 
     #TODO: check file availability
-    plot_daily = go.Scatter(x = df['date'], y = df['sales'], mode='lines+markers', name = 'fact')
-    plot_daily_f = go.Scatter(x = df['date'], y=df['forecast'], mode='lines+markers', name='forecast')
+    plot_daily = go.Scatter(x = df['date'], y = df['sales'], mode='lines+markers', name = 'fact', marker_color = MAIN_COLOR)
+    plot_daily_f = go.Scatter(x = df['date'], y=df['forecast'], mode='lines+markers', name='forecast', marker_color = 'red')
 
     graph_new = {
         'data': [plot_daily, plot_daily_f],
