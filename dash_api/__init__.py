@@ -29,7 +29,7 @@ from time import sleep
 BUTTON_DELAY = 1000
 URL_TXT = 'dash_api/storage.txt'
 MAIN_URL = 'http://localhost:8000'
-FONT = 'sans-serif'
+FONT = 'Open Sans'
 MAIN_COLOR = '#0074D9'
 
 #app = dash.Dash(__name__)
@@ -51,7 +51,10 @@ logos = html.Div(
             'Prescient',
             className = 'eight columns',
             style = {
-                'font-family': FONT
+                'font-family': FONT,
+                'font-size': '45px',
+                'fontWeight': 550,
+                'textAlign': 'left'
             }
         ),
         # html.Img(

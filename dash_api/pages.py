@@ -13,7 +13,7 @@ region_options = [{'label': str(region), 'value': str(region)}
 product_options = [{'label': product, 'value': product} for  product in PRODUCTS]
 prod_gr_options = [{'label': product, 'value': product} for  product in PRODUCTS_GROUPS]
 
-FONT = 'sans-serif'
+FONT = 'Open Sans'
 MAIN_COLOR = '#0074D9'
 
 tab_style = {
@@ -61,43 +61,54 @@ all_buttons = dcc.Markdown(
     id = 'all_buttons'
 )
 
-#---------------------------------------------------------
-#                    Churn Predictor
-#---------------------------------------------------------
-def churn_predictor():
-    filter_region = html.Div(
+def f_region(id):
+    text = html.P(
+        'Region:',
+        style = {'margin-bottom': 5}
+    )
+    dropdown = dcc.Dropdown(
+        id = id,
+        options = region_options,
+        multi = False,
+        value = region_options[0]['label']
+    )
+    out = html.Div(
         [
-            html.P(
-                'Region:',
-                style = {'margin-bottom': 5}
-            ),
-            dcc.Dropdown(
-                id = 'churn_regions',
-                options = region_options,
-                multi = False,
-                value = region_options[0]['label']
-            ),
+            text,
+            dropdown
         ],
         className = 'four columns',
-        style = {
-            'margin-left': 20
-
-        }
+        style = {'margin-left': 20}
     )
-    filter_state = html.Div(
+    return out
+
+def f_state(id):
+    text = html.P(
+        'State:',
+        style = {'margin-bottom': 5}
+    )
+    dropdown = dcc.Dropdown(
+        id = id,
+        options = region_options,
+        multi = True,
+    )
+    out = html.Div(
         [
-            html.P(
-                'State:',
-                style = {'margin-bottom': 5}
-            ),
-            dcc.Dropdown(
-                id = 'churn_states',
-                multi = True
-            ),
+            text,
+            dropdown
         ],
         className = 'four columns',
         style = {'margin-left': 65}
     )
+    return out
+
+
+#---------------------------------------------------------
+#                    Churn Predictor
+#---------------------------------------------------------
+def churn_predictor():
+    filter_region = f_region('churn_regions')
+    filter_state = f_state('churn_states')
 
     filter_days = html.Div(
         [
@@ -121,8 +132,7 @@ def churn_predictor():
             html.P('Push the button:'),
             html.Button('Get CSV', id = 'churn_button')
         ],
-        className = 'one column',
-        #style={'margin-left': 75}
+        className = 'one column'
     )
     filters = html.Div(
         [
@@ -131,10 +141,7 @@ def churn_predictor():
             filter_days,
             button
         ],
-        className='row',
-        style = {
-            'margin-top': 30
-        }
+        className='row'
     )
     churn_graph = html.Div(
         [
@@ -174,7 +181,12 @@ def churn_predictor():
                 'Churn Predictor',
                 style = {
                     'margin-left': 20,
-                    'margin-top': 60
+                    'margin-top': 60,
+                    'margin-down': 30,
+                    'font-family': FONT,
+                    'font-size': '36px',
+                    'fontWeight': 400,
+                    'textAlign': 'center'
                 }
             ),
             filters,
@@ -198,36 +210,9 @@ def churn_predictor():
 #                  Correlative Targeting
 #---------------------------------------------------------
 def bucket_analysis():
-    filter_region = html.Div(
-        [
-            html.P(
-                'Region:',
-                style = {'margin-bottom': 5}
-            ),
-            dcc.Dropdown(
-                id='bucket_regions',
-                options = region_options,
-                multi = False,
-                value = region_options[0]['label'] # 'All Malaysia', #list(REGIONS.keys()),
-            ),
-        ],
-        className='four columns',
-        style = {'margin-left': 20}
-    )
-    filter_state = html.Div(
-        [
-            html.P(
-                'State:',
-                style = {'margin-bottom': 5}
-            ),
-            dcc.Dropdown(
-                id='bucket_states',
-                multi = True
-            ),
-        ],
-        className='four columns',
-        style = {'margin-left': 65}
-    )
+    filter_region = f_region('bucket_regions')
+    filter_state = f_state('bucket_states')
+
     filter_product = html.Div(
         [
             html.P(
@@ -244,8 +229,6 @@ def bucket_analysis():
         className='two columns',
         style={'margin-left': 65}
     )
-
-
     button = html.Div(
         [
             html.P('Push the button:'),
@@ -262,6 +245,7 @@ def bucket_analysis():
         ],
         className='row'
     )
+
     # LEFT TABLE
     l_drop = html.Div(
         [
@@ -371,7 +355,6 @@ def bucket_analysis():
                 style_table = {
                     'overflowY': 'scroll',
                     'height': '300px',
-#                    'width': '300px',
                     'margin-top': 10
                 },
                 style_cell={'textAlign': 'center'},
@@ -401,142 +384,18 @@ def bucket_analysis():
             html.H2(
                 'Correlative Targeting',
                 style = {
-                    'margin-left': 20
+                    'margin-left': 20,
+                    'margin-top': 60,
+                    'margin-down': 30,
+                    'font-family': FONT,
+                    'font-size': '36px',
+                    'fontWeight': 400,
+                    'textAlign': 'center'
                 }
             ),
             filters,
             tables
         ],
-        # style = {
-        #     'backgroundColor':'#d3d3d3'
-        # }
-    )
-    return page
-
-
-#---------------------------------------------------------
-#                 Sales Forecasting
-#---------------------------------------------------------
-def sales_forecasting():
-    filter_region = html.Div(
-        [
-            html.P(
-                'Region:',
-                style = {'margin-bottom': 5}
-            ),
-            dcc.Dropdown(
-                id='forecast_regions',
-                options = region_options,
-                multi = False,
-                value = region_options[0]['label'] # 'All Malaysia', #list(REGIONS.keys()),
-            ),
-        ],
-        className='four columns',
-        style = {'margin-left': 20}
-    )
-
-    filter_state = html.Div(
-        [
-            html.P(
-                'State:',
-                style = {'margin-bottom': 5}
-            ),
-            dcc.Dropdown(
-                id='forecast_states',
-                multi = True
-            ),
-        ],
-        className='four columns',
-        style = {'margin-left': 65}
-    )
-    filter_days = html.Div(
-        [
-            html.P(
-                'Period to forecast:',
-                style={'margin-bottom': 5}
-            ),
-            dcc.Dropdown(
-                id='forecast_period',
-                options = [{'label': x, 'value':x} for x in ['week', 'month', 'quarter', '6 months', 'year']],
-                multi = False,
-                value = 'month'
-            ),
-        ],
-        className='two columns',
-        style={'margin-left': 65}
-    )
-
-
-    button = html.Div(
-        [
-            html.P('Push the button:'),
-            html.Button('Get CSV', id = 'forecast_button')
-        ],
-        className = 'one column'
-    )
-    filters = html.Div(
-        [
-            filter_region,
-            filter_state,
-            filter_days,
-            button
-        ],
-        className='row'
-    )
-    forecast_graph = html.Div(
-        [
-            html.H5(
-                'Choose period, location and period to forecast. After that wait for few seconds.'
-            ),
-            dcc.Graph(
-                id = 'forecast_graph'
-            )
-        ],
-        className = 'eight columns',
-        style={
-            'margin-top': 50,
-            'margin-left': 20
-        }
-    )
-
-    forecast_table = html.Div(
-        [
-            html.H5('Sales Forecasting (weekly):'),
-            DataTable(
-                id='forecast_table',
-                columns=[{'name': i, 'id': i} for i in ['Week_Date', 'Forecast, RM']],
-                style_table = {
-                    'overflowY': 'scroll',
-                    'height': '450px',
-                    'margin-top': 5
-                },
-                style_cell={'textAlign': 'center'},
-                style_header={
-                    'backgroundColor': MAIN_COLOR,
-                    'color': 'white',
-                    'fontWeight': 'bold'
-                },
-            )
-        ],
-        className = 'three columns',
-        style = {
-            'margin-top': 50,
-            'margin-left': 20
-        }
-    )
-
-    page = html.Div(
-        [
-            html.H2(
-                'Sales Forecasting',
-                style={
-                    'margin-left': 20
-                }
-            ),
-            filters,
-            forecast_graph,
-            forecast_table
-        ]
     )
     return page
 
@@ -544,36 +403,9 @@ def sales_forecasting():
 #                    Purchase Propensity
 #---------------------------------------------------------
 def purchase_propensity():
-    filter_region = html.Div(
-        [
-            html.P(
-                'Region:',
-                style = {'margin-bottom': 5}
-            ),
-            dcc.Dropdown(
-                id='propensity_regions',
-                options = region_options,
-                multi = False,
-                value = region_options[0]['label'] # 'All Malaysia', #list(REGIONS.keys()),
-            ),
-        ],
-        className='four columns',
-        style = {'margin-left': 20}
-    )
-    filter_state = html.Div(
-        [
-            html.P(
-                'State:',
-                style = {'margin-bottom': 5}
-            ),
-            dcc.Dropdown(
-                id='propensity_states',
-                multi = True
-            ),
-        ],
-        className='four columns',
-        style = {'margin-left': 65}
-    )
+    filter_region = f_region('propensity_regions')
+    filter_state = f_state('propensity_states')
+
     filter_product = html.Div(
         [
             html.P(
@@ -701,7 +533,13 @@ def purchase_propensity():
             html.H2(
                 'Purchase Propensity',
                 style = {
-                    'margin-left': 20
+                    'margin-left': 20,
+                    'margin-top': 60,
+                    'margin-down': 30,
+                    'font-family': FONT,
+                    'font-size': '36px',
+                    'fontWeight': 400,
+                    'textAlign': 'center'
                 }
             ),
             filters,
@@ -1173,7 +1011,13 @@ def mix_modeler():
             html.H2(
                 'Mix modeler',
                 style={
-                    'margin-left': 20
+                    'margin-left': 20,
+                    'margin-top': 60,
+                    'margin-down': 30,
+                    'font-family': FONT,
+                    'font-size': '36px',
+                    'fontWeight': 400,
+                    'textAlign': 'center'
                 }
             ),
             filters_1,
@@ -1199,6 +1043,108 @@ def mix_modeler():
     )
     return page
 
+#---------------------------------------------------------
+#                 Sales Forecasting
+#---------------------------------------------------------
+def sales_forecasting():
+    filter_region = f_region('forecast_regions')
+    filter_state = f_state('forecast_states')
+
+    filter_days = html.Div(
+        [
+            html.P(
+                'Period to forecast:',
+                style={'margin-bottom': 5}
+            ),
+            dcc.Dropdown(
+                id='forecast_period',
+                options = [{'label': x, 'value':x} for x in ['week', 'month', 'quarter', '6 months', 'year']],
+                multi = False,
+                value = 'month'
+            ),
+        ],
+        className='two columns',
+        style={'margin-left': 65}
+    )
+
+    button = html.Div(
+        [
+            html.P('Push the button:'),
+            html.Button('Get CSV', id = 'forecast_button')
+        ],
+        className = 'one column'
+    )
+    filters = html.Div(
+        [
+            filter_region,
+            filter_state,
+            filter_days,
+            button
+        ],
+        className='row'
+    )
+    forecast_graph = html.Div(
+        [
+            html.H5(
+                'Choose period, location and period to forecast. After that wait for few seconds.'
+            ),
+            dcc.Graph(
+                id = 'forecast_graph'
+            )
+        ],
+        className = 'eight columns',
+        style={
+            'margin-top': 50,
+            'margin-left': 20
+        }
+    )
+
+    forecast_table = html.Div(
+        [
+            html.H5('Sales Forecasting (weekly):'),
+            DataTable(
+                id='forecast_table',
+                columns=[{'name': i, 'id': i} for i in ['Week_Date', 'Forecast, RM']],
+                style_table = {
+                    'overflowY': 'scroll',
+                    'height': '450px',
+                    'margin-top': 5
+                },
+                style_cell={'textAlign': 'center'},
+                style_header={
+                    'backgroundColor': MAIN_COLOR,
+                    'color': 'white',
+                    'fontWeight': 'bold'
+                },
+            )
+        ],
+        className = 'three columns',
+        style = {
+            'margin-top': 50,
+            'margin-left': 20
+        }
+    )
+
+    page = html.Div(
+        [
+            html.H2(
+                'Sales Forecasting',
+                style={
+                    'margin-left': 20,
+                    'margin-top': 60,
+                    'margin-down': 30,
+                    'font-family': FONT,
+                    'font-size': '36px',
+                    'fontWeight': 400,
+                    'textAlign': 'center'
+                }
+            ),
+            filters,
+            forecast_graph,
+            forecast_table
+        ]
+    )
+    return page
 
 
 tabs = dcc.Tabs(
