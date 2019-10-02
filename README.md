@@ -3,8 +3,13 @@ AI dashboard
 
 ## Prerequisites
 ### Step 1: Install pip3 if it is already not installed on your system
-```$ pip3 -V```
+`$ pip3 -V`
 
-If your output suggests that pip is not installed on your system, please run the following commands as sudo to install the latest pip3 package:
+If pip is not installed, it's necessary to run the following commands:
 
 `$ sudo apt-get update`
+
+`$ sudo apt install python3-pip`
+
+To install any package use following command:
+`$ pip3 install [package-name]`
