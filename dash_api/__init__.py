@@ -69,7 +69,7 @@ logos = html.Div(
         # ),
     ],
     style = {
-        'margin-left': 10,
+        'margin-left': 20,
         'margin-right': 10
     },
     className = 'row'
