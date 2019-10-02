@@ -2,7 +2,7 @@
 AI dashboard
 
 ## Prerequisites
-It's simple tutorial how to create *virtual environment* and than *install* automatically there all *necessary packages*.
+It's simple tutorial how to create **virtual environment** and than **install** automatically there all **necessary packages**.
 It's convenient because you can use these packages only in your project boundaries. Any problems related with project will not affec system in general.
 ### Step 1: Install pip3 if it is already not installed on your system
 To check which vesion of pip3 is installed on your system run following command: 
@@ -29,3 +29,16 @@ If you don't have this directory you can create it by:
 
 Create virtual environment:
 `$ python3 -m venv environment_name`
+
+Activate virtual environment:
+`$ source environment_name/bin/activate`
+
+Deactivate virtual environment:
+`deactivate`
+
+### Step 3: Working with required / installed packages by *txt file*
+If you have file **requirements.txt** with all necessary packages and want to install them:
+`$ pip install -r requirements.txt`
+
+If you need to create file **requirements.txt** with all packages that you use for your project:
+`pip freeze > requirements.txt`
