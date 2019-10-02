@@ -78,7 +78,12 @@ dates = html.Div(
     [
         html.Div(
             [
-                html.P('Choose date range for report:', style = {'margin-bottom': 25}),
+                html.P('Choose date range for report:',
+                       style = {
+                           'margin-bottom': 35,
+                            'font-size': '20px',
+                       }
+                ),
                 dcc.RangeSlider(
                     id = 'year_slider',
                     min = 0,
@@ -96,17 +101,20 @@ dates = html.Div(
                 html.P(
                     'Date range:',
                     style = {
-                        #'margin-bottom': 15,
-                        'margin-top': 10
+                        'margin-top': 10,
+                        'font-size': '20px',
                     }),
                 html.H6(
                     id = 'year_text',
+                    style = {
+                        'font-size': '20px',
+                    }
                 )
             ],
             style = {
                 #'text-align': 'right',
                 #'margin-top': '50',
-                'padding-left': 16,
+                'padding-left': '30px',
                 'backgroundColor': MAIN_COLOR,
                 'color': 'white',
                 'font-family': FONT
@@ -554,7 +562,7 @@ def update_figure_forecast(
 
     #TODO: check file availability
     plot_daily = go.Scatter(x = df['date'], y = df['sales'], mode='lines+markers', name = 'fact', marker_color = MAIN_COLOR)
-    plot_daily_f = go.Scatter(x = df['date'], y=df['forecast'], mode='lines+markers', name='forecast', marker_color = 'red')
+    plot_daily_f = go.Scatter(x = df['date'], y=df['forecast'], mode='lines+markers', name='forecast', marker_color = 'orange')
 
     graph_new = {
         'data': [plot_daily, plot_daily_f],
@@ -603,7 +611,7 @@ def update_overview(
 
     curiosity, intention, action = curiosity / 2, intention / 5, action / 250
     # return '# **{}**'.format(round(curiosity, 0)), '# **{}**'.format(round(intention, 0)),  '# **{}**'.format(round(action, 0))
-    return '# **{}**'.format(int(curiosity)), '# **{}**'.format(int(intention)),  '# **{}**'.format(int(action))
+    return str(int(curiosity)), str(int(intention)),  str(int(action))
 
 
 #--------------------------------------------

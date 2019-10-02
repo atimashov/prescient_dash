@@ -19,7 +19,7 @@ MAIN_COLOR = '#0074D9'
 tab_style = {
     'borderTop': '1px solid #d6d6d6',
     'borderBottom': '1px solid #d6d6d6',
-    'fontWeight': '800',
+    'fontWeight': '400',
     'font-family': FONT,
     'font-size': 18,
     'backgroundColor': '#f2f2f2', ##103350',
@@ -34,11 +34,11 @@ tabs_styles = {
 tab_selected_style = {
     'borderTop': '1px solid #d6d6d6',
     'borderBottom': '1px solid #d6d6d6',
-    'fontWeight': '800',
+    'fontWeight': '600',
     'font-family': FONT,
     'font-size': 18,
     'backgroundColor': '#55bcad', # '#27b9f2',
-    'color': '#103350', #'black',
+    'color': 'white', #'#103350', #'black',
     'padding': '14px'
 }
 
@@ -562,6 +562,43 @@ def purchase_propensity():
 #---------------------------------------------------------
 #                    Mix Modeler
 #---------------------------------------------------------
+main_title_style = {
+    'margin-top': 40,
+    'font-family': FONT,
+    'font-size': '36px',
+    'fontWeight': 300,
+    'textAlign': 'center'
+}
+main_plate_style = {
+    'backgroundColor': MAIN_COLOR,
+    'color': 'white',
+    'width': 400,
+    'height': 180,
+    'margin-left': 120,
+}
+small_title_style = {
+    'font-family': FONT,
+    'font-size': '36px',
+    'fontWeight': 300,
+    'textAlign': 'center'
+}
+small_plate_style = {
+    'backgroundColor': MAIN_COLOR,
+    'color': 'white',
+    'width': 400,
+    'height': 140,
+    'margin-left': 120,
+    'textAlign': 'center'
+}
+
+value_style = {
+    'margin-top': -10,
+    'font-family': FONT,
+    'font-size': '42px',
+    'fontWeight': 600,
+    'textAlign': 'center'
+}
+
 def mix_modeler():
     slider_press = html.Div(
         [
@@ -754,49 +791,46 @@ def mix_modeler():
     # ----------------------
     curiosity = html.Div(
         [
-            dcc.Markdown('## Curiosity'),
-            dcc.Markdown(id='mix_curiosity')
+            html.H2(
+                'Curiosity',
+                style = main_title_style
+            ),
+            html.H2(
+                id = 'mix_curiosity',
+                style = value_style
+            )
         ],
         className='four columns',
-        style={
-            'backgroundColor': MAIN_COLOR,
-            'color': 'white',
-            'width': 400,
-            'height': 200,
-            'margin-left': 120,
-            'textAlign': 'center'
-        }
+        style = main_plate_style
     )
     intention = html.Div(
         [
-            dcc.Markdown('## Intention'),
-            dcc.Markdown(id='mix_intention')
+            html.H2(
+                'Intention',
+                style = main_title_style
+            ),
+            html.H2(
+                id='mix_intention',
+                style = value_style
+            )
         ],
         className='four columns',
-        style={
-            'backgroundColor': MAIN_COLOR,
-            'color': 'white',
-            'width': 400,
-            'height': 200,
-            'margin-left': 80,
-            'textAlign': 'center'
-        }
+        style = main_plate_style
     )
 
     action = html.Div(
         [
-            dcc.Markdown('## Action'),
-            dcc.Markdown(id='mix_action')
+            html.H2(
+                'Action',
+                style = main_title_style
+            ),
+            html.H2(
+                id='mix_action',
+                style = value_style
+            )
         ],
         className='four columns',
-        style={
-            'backgroundColor': MAIN_COLOR,
-            'color': 'white',
-            'width': 400,
-            'height': 200,
-            'margin-left': 80,
-            'textAlign': 'center'
-        }
+        style = main_plate_style
     )
     line = html.Div(
         [
@@ -832,48 +866,49 @@ def mix_modeler():
     # ----------------------
     press = html.Div(
         [
-            dcc.Markdown('## Press'),
-            dcc.Markdown(id='mix_press')
+            html.H2(
+                'Press',
+                style = small_title_style
+            ),
+            html.H2(
+                '10000',
+                id='mix_press',
+
+                style = value_style
+            )
         ],
         className='four columns',
-        style={
-            'backgroundColor': MAIN_COLOR,
-            'color': 'white',
-            'width': 400,
-            'height': 120,
-            'margin-left': 120,
-            'textAlign': 'center'
-        }
+        style = small_plate_style
     )
     outdoor = html.Div(
         [
-            dcc.Markdown('## Outdoor'),
-            dcc.Markdown(id='mix_outdoor')
+            html.H2(
+                'Outdoor',
+                style = small_title_style
+            ),
+            html.H2(
+                '10000',
+                id='mix_outdoor',
+                style = value_style
+            )
         ],
         className='four columns',
-        style={
-            'backgroundColor': MAIN_COLOR,
-            'color': 'white',
-            'width': 400,
-            'height': 120,
-            'margin-left': 80,
-            'textAlign': 'center'
-        }
+        style = small_plate_style
     )
     radio = html.Div(
         [
-            dcc.Markdown('## Radio'),
-            dcc.Markdown(id='mix_radio')
+            html.H2(
+                'Radio',
+                style = small_title_style
+            ),
+            html.H2(
+                '10000',
+                id='mix_radio',
+                style = value_style
+            )
         ],
         className='four columns',
-        style={
-            'backgroundColor': MAIN_COLOR,
-            'color': 'white',
-            'width': 400,
-            'height': 120,
-            'margin-left': 80,
-            'textAlign': 'center'
-        }
+        style = small_plate_style
     )
     investment_output_1 = html.Div(
         [
@@ -889,48 +924,48 @@ def mix_modeler():
 
     tv = html.Div(
         [
-            dcc.Markdown('## TV'),
-            dcc.Markdown(id='mix_tv')
+            html.H2(
+                'TV',
+                style = small_title_style
+            ),
+            html.H2(
+                '10000',
+                id='mix_tv',
+                style = value_style
+            )
         ],
         className='four columns',
-        style={
-            'backgroundColor': MAIN_COLOR,
-            'color': 'white',
-            'width': 400,
-            'height': 120,
-            'margin-left': 120,
-            'textAlign': 'center'
-        }
+        style = small_plate_style
     )
     programmatic = html.Div(
         [
-            dcc.Markdown('## Programmatic'),
-            dcc.Markdown(id='mix_programmatic')
+            html.H2(
+                'Programmatic',
+                style = small_title_style
+            ),
+            html.H2(
+                '10000',
+                id='mix_programmatic',
+                style = value_style
+            )
         ],
         className='four columns',
-        style={
-            'backgroundColor': MAIN_COLOR,
-            'color': 'white',
-            'width': 400,
-            'height': 120,
-            'margin-left': 80,
-            'textAlign': 'center'
-        }
+        style = small_plate_style
     )
     search = html.Div(
         [
-            dcc.Markdown('## Search'),
-            dcc.Markdown(id='mix_search')
+            html.H2(
+                'Search',
+                style = small_title_style
+            ),
+            html.H2(
+                '10000',
+                id='mix_search',
+                style = value_style
+            )
         ],
         className='four columns',
-        style={
-            'backgroundColor': MAIN_COLOR,
-            'color': 'white',
-            'width': 400,
-            'height': 120,
-            'margin-left': 80,
-            'textAlign': 'center'
-        }
+        style = small_plate_style
     )
     investment_output_2 = html.Div(
         [
@@ -946,48 +981,48 @@ def mix_modeler():
 
     video = html.Div(
         [
-            dcc.Markdown('## Video'),
-            dcc.Markdown(id='mix_video')
+            html.H2(
+                'Video',
+                style=small_title_style
+            ),
+            html.H2(
+                '10000',
+                id = 'mix_video',
+                style=value_style
+            )
         ],
         className='four columns',
-        style={
-            'backgroundColor': MAIN_COLOR,
-            'color': 'white',
-            'width': 400,
-            'height': 120,
-            'margin-left': 120,
-            'textAlign': 'center'
-        }
+        style = small_plate_style
     )
     youtube = html.Div(
         [
-            dcc.Markdown('## Youtube'),
-            dcc.Markdown(id='mix_youtube')
+            html.H2(
+                'Youtube',
+                style=small_title_style
+            ),
+            html.H2(
+                '10000',
+                id='mix_youtube',
+                style=value_style
+            )
         ],
         className='four columns',
-        style={
-            'backgroundColor': MAIN_COLOR,
-            'color': 'white',
-            'width': 400,
-            'height': 120,
-            'margin-left': 80,
-            'textAlign': 'center'
-        }
+        style = small_plate_style
     )
     other_digital = html.Div(
         [
-            dcc.Markdown('## Other Digital'),
-            dcc.Markdown(id='mix_other_digital')
+            html.H2(
+                'Other Digital',
+                style=small_title_style
+            ),
+            html.H2(
+                '10000',
+                id='mix_other_digita',
+                style=value_style
+            )
         ],
         className='four columns',
-        style={
-            'backgroundColor': MAIN_COLOR,
-            'color': 'white',
-            'width': 400,
-            'height': 120,
-            'margin-left': 80,
-            'textAlign': 'center'
-        }
+        style = small_plate_style
     )
     investment_output_3 = html.Div(
         [
@@ -1028,7 +1063,12 @@ def mix_modeler():
                 'Recommendation Plan',
                 style={
                     'margin-left': 20,
-                    'margin-top': 60
+                    'margin-top': 80,
+                    'margin-down': 30,
+                    'font-family': FONT,
+                    'font-size': '36px',
+                    'fontWeight': 400,
+                    'textAlign': 'center'
                 }
             ),
             investment_input,
