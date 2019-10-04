@@ -601,10 +601,29 @@ def update_figure_forecast(
 def update_overview(
         press, outdoor, radio, tv, progr, search, fb, youtube, other
 ):
-    # conversations = - 66 * press + 435 * outdoor - 64 * radio + 24 * tv + 169 * progr + 563 * search - 314 * fb - 16 * youtube + 607 * other
-    # curiosity = -104 * press + 213 * outdoor + 146 * radio - 25 * tv + 334 * progr - 971 * search - 484 * fb + 511 * youtube - 492 * other
-    # action = - 508 * press + 9765 * outdoor + 15 * radio + 171 * tv + 208 * progr + 9853 * search + 2549 * fb - 3494 * youtube + 1143 * other
-
+    audience = {
+        'press': 0.25 / 3,
+        'tv': 0.9 / 3,
+        'video': 0.7 / 3,
+        'outdoor': 0.1 / 3,
+        'programmatic': 0.3 / 3,
+        'youtube': 0.3 / 3,
+        'radio': 0.7 / 3,
+        'search': 0.2 / 3,
+        'other': 0.9 / 3
+    }
+    price = {
+        'press': 100,
+        'tv': 80,
+        'video': 15,
+        'outdoor': 30,
+        'programmatic': 15,
+        'youtube': 20,
+        'radio': 50,
+        'search': 15,
+        'other': 25
+    }
+    tv = 0
     curiosity = 896 * press + 1213 * outdoor + 1146 * radio - 975 * tv + 1334 * progr + 29 * search + 516 * fb + 1511 * youtube + 508 * other
     intention = 434 * press + 935 * outdoor + 436 * radio + 524 * tv + 669 * progr + 1063 * search + 186 * fb + 484 * youtube + 1107 * other
     action = 3496 * press + 13765 * outdoor + 4015 * radio + 4171 * tv + 4208 * progr + 13853 * search + 6549 * fb + 506 * youtube + 5143 * other
