@@ -609,9 +609,9 @@ def mix_modeler():
             dcc.Slider(
                 id='mix-press',
                 min = 0,
-                max = 400,
+                max = 4000,
                 value = 20,
-                marks={i * 100: '{}'.format(i * 100000) for i in range(5)},
+                marks={i * 1000: '{} mln.'.format(i) for i in range(5)},
                 #vertical='True'
             )
         ],
@@ -627,9 +627,9 @@ def mix_modeler():
             dcc.Slider(
                 id='mix-outdoor',
                 min = 0,
-                max = 400,
+                max = 4000,
                 value = 20,
-                marks={i * 100: '{}'.format(i * 100000) for i in range(5)},
+                marks={i * 1000: '{} mln.'.format(i) for i in range(5)},
                 #vertical='True'
             )
         ],
@@ -644,10 +644,10 @@ def mix_modeler():
             ),
             dcc.Slider(
                 id='mix-radio',
-                min = 0,
-                max = 400,
-                value = 20,
-                marks={i * 100: '{}'.format(i * 100000) for i in range(5)},
+                min=0,
+                max=4000,
+                value=20,
+                marks={i * 1000: '{} mln.'.format(i) for i in range(5)},
                 # vertical='True'
             )
         ],
@@ -672,9 +672,9 @@ def mix_modeler():
             dcc.Slider(
                 id='mix-tv',
                 min = 0,
-                max = 400,
+                max = 4000,
                 value = 20,
-                marks={i * 100: '{}'.format(i * 100000) for i in range(5)},
+                marks={i * 1000: '{} mln.'.format(i) for i in range(5)},
                 #vertical='True'
             )
         ],
@@ -690,9 +690,9 @@ def mix_modeler():
             dcc.Slider(
                 id='mix-programmatic',
                 min = 0,
-                max = 400,
+                max = 4000,
                 value = 20,
-                marks={i * 100: '{}'.format(i * 100000) for i in range(5)},
+                marks={i * 1000: '{} mln.'.format(i) for i in range(5)},
                 #vertical='True'
             )
         ],
@@ -708,9 +708,9 @@ def mix_modeler():
             dcc.Slider(
                 id = 'mix-search',
                 min = 0,
-                max = 400,
+                max = 4000,
                 value = 20,
-                marks={i * 100: '{}'.format(i * 100000) for i in range(5)},
+                marks={i * 1000: '{} mln.'.format(i) for i in range(5)},
                 # vertical='True'
             )
         ],
@@ -736,9 +736,9 @@ def mix_modeler():
             dcc.Slider(
                 id = 'mix-video',
                 min = 0,
-                max = 400,
+                max = 4000,
                 value = 20,
-                marks={i * 100: '{}'.format(i * 100000) for i in range(5)},
+                marks={i * 1000: '{} mln.'.format(i) for i in range(5)},
             )
         ],
         className='three columns',
@@ -753,9 +753,9 @@ def mix_modeler():
             dcc.Slider(
                 id='mix-youtube',
                 min = 0,
-                max = 400,
+                max = 4000,
                 value = 20,
-                marks={i * 100: '{}'.format(i * 100000) for i in range(5)},
+                marks={i * 1000: '{} mln.'.format(i) for i in range(5)},
             )
         ],
         className='three columns',
@@ -770,9 +770,9 @@ def mix_modeler():
             dcc.Slider(
                 id = 'mix-other',
                 min = 0,
-                max = 400,
+                max = 4000,
                 value = 20,
-                marks={i * 100: '{}'.format(i * 100000) for i in range(5)},
+                marks={i * 1000: '{} mln.'.format(i) for i in range(5)},
                 # vertical='True'
             )
         ],

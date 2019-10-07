@@ -444,6 +444,97 @@ def update_propensity(
     return graph, txt, table
 
 
+
+
+#--------------------------------------------
+#                Mix Modeler
+#--------------------------------------------
+@app.callback(
+    [
+        Output(component_id='mix_curiosity', component_property='children'),
+        Output(component_id = 'mix_intention', component_property = 'children'),
+        Output(component_id = 'mix_action', component_property = 'children'),
+    ],
+    [
+        Input('mix-press', 'value'),
+        Input('mix-outdoor', 'value'),
+        Input('mix-radio', 'value'),
+        Input('mix-tv', 'value'),
+        Input('mix-programmatic', 'value'),
+        Input('mix-search', 'value'),
+        Input('mix-video', 'value'),
+        Input('mix-youtube', 'value'),
+        Input('mix-other', 'value'),
+
+    ]
+)
+def update_overview(
+        press, outdoor, radio, tv, progr, search, video, youtube, other
+):
+    TARGET = 6000000
+    amount = {
+        'press': 1000 * press,
+        'tv': 1000 * tv,
+        'video': 1000 * video,
+        'outdoor': 1000 * outdoor,
+        'programmatic': 1000 * progr,
+        'youtube': 1000 * youtube,
+        'radio': 1000 * radio,
+        'search': 1000 * search,
+        'other': 1000 * other
+    }
+    audience = {
+        'press': 0.25 / 3,
+        'tv': 0.9 / 3,
+        'video': 0.7 / 3,
+        'outdoor': 0.1 / 3,
+        'programmatic': 0.3 / 3,
+        'youtube': 0.3 / 3,
+        'radio': 0.7 / 3,
+        'search': 0.2 / 3,
+        'other': 0.9 / 3
+    }
+    price = {
+        'press': 100,
+        'tv': 80,
+        'video': 15,
+        'outdoor': 30,
+        'programmatic': 15,
+        'youtube': 20,
+        'radio': 50,
+        'search': 15,
+        'other': 25
+    }
+
+    curiosity_rate = 0.8
+    intention_rate = 0.4
+    action_rate = 0.1
+    curiosity = 0
+    intention = 0
+    action = 0
+    print()
+    print('-----WOMBAT-----')
+    print(amount['press'], TARGET, audience['press'], price['press'])
+    print('-----WOMBAT-----')
+    print()
+    for key in audience:
+        c = TARGET * audience[key] * price[key] / np.log(1 - curiosity_rate)
+        curiosity += TARGET * audience[key] * (1 - np.exp( amount[key] / c))
+
+        i = TARGET * audience[key] * price[key] / np.log(1 - intention_rate)
+        intention += TARGET * audience[key] * (1 - np.exp( amount[key] / i)) / 1.45
+
+        a = TARGET * audience[key] * price[key] / np.log(1 - action_rate)
+        action += TARGET * audience[key] * (1 - np.exp( amount[key] / a)) / 1.45
+
+    # curiosity = 896 * press + 1213 * outdoor + 1146 * radio - 975 * tv + 1334 * progr + 29 * search + 516 * fb + 1511 * youtube + 508 * other
+    # intention = 434 * press + 935 * outdoor + 436 * radio + 524 * tv + 669 * progr + 1063 * search + 186 * fb + 484 * youtube + 1107 * other
+    # action = 3496 * press + 13765 * outdoor + 4015 * radio + 4171 * tv + 4208 * progr + 13853 * search + 6549 * fb + 506 * youtube + 5143 * other
+
+    # curiosity, intention, action = curiosity / 2, intention / 5, action / 250
+    return str(int(curiosity)), str(int(intention)),  str(int(action))
+
+
 # --------------------------------------------
 #                    Forecasting
 # --------------------------------------------
@@ -575,63 +666,6 @@ def update_figure_forecast(
     print(table)
 
     return graph_new, table
-
-#--------------------------------------------
-#                Mix Modeler
-#--------------------------------------------
-@app.callback(
-    [
-        Output(component_id='mix_curiosity', component_property='children'),
-        Output(component_id = 'mix_intention', component_property = 'children'),
-        Output(component_id = 'mix_action', component_property = 'children'),
-    ],
-    [
-        Input('mix-press', 'value'),
-        Input('mix-outdoor', 'value'),
-        Input('mix-radio', 'value'),
-        Input('mix-tv', 'value'),
-        Input('mix-programmatic', 'value'),
-        Input('mix-search', 'value'),
-        Input('mix-video', 'value'),
-        Input('mix-youtube', 'value'),
-        Input('mix-other', 'value'),
-
-    ]
-)
-def update_overview(
-        press, outdoor, radio, tv, progr, search, fb, youtube, other
-):
-    audience = {
-        'press': 0.25 / 3,
-        'tv': 0.9 / 3,
-        'video': 0.7 / 3,
-        'outdoor': 0.1 / 3,
-        'programmatic': 0.3 / 3,
-        'youtube': 0.3 / 3,
-        'radio': 0.7 / 3,
-        'search': 0.2 / 3,
-        'other': 0.9 / 3
-    }
-    price = {
-        'press': 100,
-        'tv': 80,
-        'video': 15,
-        'outdoor': 30,
-        'programmatic': 15,
-        'youtube': 20,
-        'radio': 50,
-        'search': 15,
-        'other': 25
-    }
-    tv = 0
-    curiosity = 896 * press + 1213 * outdoor + 1146 * radio - 975 * tv + 1334 * progr + 29 * search + 516 * fb + 1511 * youtube + 508 * other
-    intention = 434 * press + 935 * outdoor + 436 * radio + 524 * tv + 669 * progr + 1063 * search + 186 * fb + 484 * youtube + 1107 * other
-    action = 3496 * press + 13765 * outdoor + 4015 * radio + 4171 * tv + 4208 * progr + 13853 * search + 6549 * fb + 506 * youtube + 5143 * other
-
-    curiosity, intention, action = curiosity / 2, intention / 5, action / 250
-    # return '# **{}**'.format(round(curiosity, 0)), '# **{}**'.format(round(intention, 0)),  '# **{}**'.format(round(action, 0))
-    return str(int(curiosity)), str(int(intention)),  str(int(action))
-
 
 #--------------------------------------------
 #                    Pages
