@@ -22,6 +22,7 @@ from churn_rate import get_df_by_rate
 
 from purchase_propensity import propensity_search_object
 from purchase_propensity import propensity_repackage
+from math import ceil
 
 
 
@@ -396,9 +397,7 @@ def update_propensity(
     if product is not None:
         url_propensity = '{}&product={}'.format(url_propensity, product)
     url_propensity = '{}&number={}'.format(url_propensity, drop)
-    print('')
-    print('')
-    print('')
+
     with urllib.request.urlopen(url_propensity) as url:
         data = json.loads(url.read().decode())
 
@@ -449,40 +448,8 @@ def update_propensity(
 #--------------------------------------------
 #                Mix Modeler
 #--------------------------------------------
-@app.callback(
-    [
-        Output(component_id='mix_curiosity', component_property='children'),
-        Output(component_id = 'mix_intention', component_property = 'children'),
-        Output(component_id = 'mix_action', component_property = 'children'),
-    ],
-    [
-        Input('mix-press', 'value'),
-        Input('mix-outdoor', 'value'),
-        Input('mix-radio', 'value'),
-        Input('mix-tv', 'value'),
-        Input('mix-programmatic', 'value'),
-        Input('mix-search', 'value'),
-        Input('mix-video', 'value'),
-        Input('mix-youtube', 'value'),
-        Input('mix-other', 'value'),
-
-    ]
-)
-def update_overview(
-        press, outdoor, radio, tv, progr, search, video, youtube, other
-):
+def get_audience(spending, channel, target):
     TARGET = 6000000
-    amount = {
-        'press': 1000 * press,
-        'tv': 1000 * tv,
-        'video': 1000 * video,
-        'outdoor': 1000 * outdoor,
-        'programmatic': 1000 * progr,
-        'youtube': 1000 * youtube,
-        'radio': 1000 * radio,
-        'search': 1000 * search,
-        'other': 1000 * other
-    }
     audience = {
         'press': 0.25 / 3,
         'tv': 0.9 / 3,
@@ -505,34 +472,127 @@ def update_overview(
         'search': 15,
         'other': 25
     }
+    rate = {
+        'curiosity': 0.8,
+        'intention':0.4,
+        'action': 0.1
+    }
+    ratio = TARGET * audience[channel] * price[channel] / np.log(1 - rate[target])
+    return TARGET * audience[channel] * (1 - np.exp(spending / ratio)) / (1 if target == 'curiosity' else 1.45)
 
-    curiosity_rate = 0.8
-    intention_rate = 0.4
-    action_rate = 0.1
+def get_max_audience(amount, group_number, target, n = 100):
+    out = 0, 0, 0, 0, 0, 0
+    for i1 in range(n + 1):
+        for i2 in range(i1, n + 1):
+            am1 = i1 * amount / n
+            am2 = (i2 - i1) * amount / n
+            am3 = (n - i2) * amount / n
+            if group_number == 1: # press | tv | video
+                au1 = get_audience(am1, 'press', target)
+                au2 = get_audience(am2, 'tv', target)
+                au3 = get_audience(am3, 'video', target)
+            if group_number == 2: # outdoor | programmatic | youtube
+                au1 = get_audience(am1, 'outdoor', target)
+                au2 = get_audience(am2, 'programmatic', target)
+                au3 = get_audience(am3, 'youtube', target)
+            if group_number == 3: # radio | search | other
+                au1 = get_audience(am1, 'radio', target)
+                au2 = get_audience(am2, 'search', target)
+                au3 = get_audience(am3, 'other', target)
+            if au1 + au2 + au3 > out[0] + out[2] + out[4] and am1 * am2 * am3 > 0: out = au1, am1, au2, am2, au3, am3
+    return out
+
+@app.callback(
+    [
+        Output(component_id='mix_curiosity', component_property='children'),
+        Output(component_id = 'mix_intention', component_property = 'children'),
+        Output(component_id = 'mix_action', component_property = 'children')
+    ],
+    [
+        Input('mix-press', 'value'),
+        Input('mix-outdoor', 'value'),
+        Input('mix-radio', 'value'),
+        Input('mix-tv', 'value'),
+        Input('mix-programmatic', 'value'),
+        Input('mix-search', 'value'),
+        Input('mix-video', 'value'),
+        Input('mix-youtube', 'value'),
+        Input('mix-other', 'value')
+    ]
+)
+def update_overview(
+        press, outdoor, radio, tv, progr, search, video, youtube, other
+):
+    amount = {
+        'press': 1000 * press,
+        'tv': 1000 * tv,
+        'video': 1000 * video,
+        'outdoor': 1000 * outdoor,
+        'programmatic': 1000 * progr,
+        'youtube': 1000 * youtube,
+        'radio': 1000 * radio,
+        'search': 1000 * search,
+        'other': 1000 * other
+    }
+
     curiosity = 0
     intention = 0
     action = 0
-    print()
-    print('-----WOMBAT-----')
-    print(amount['press'], TARGET, audience['press'], price['press'])
-    print('-----WOMBAT-----')
-    print()
-    for key in audience:
-        c = TARGET * audience[key] * price[key] / np.log(1 - curiosity_rate)
-        curiosity += TARGET * audience[key] * (1 - np.exp( amount[key] / c))
 
-        i = TARGET * audience[key] * price[key] / np.log(1 - intention_rate)
-        intention += TARGET * audience[key] * (1 - np.exp( amount[key] / i)) / 1.45
-
-        a = TARGET * audience[key] * price[key] / np.log(1 - action_rate)
-        action += TARGET * audience[key] * (1 - np.exp( amount[key] / a)) / 1.45
-
-    # curiosity = 896 * press + 1213 * outdoor + 1146 * radio - 975 * tv + 1334 * progr + 29 * search + 516 * fb + 1511 * youtube + 508 * other
-    # intention = 434 * press + 935 * outdoor + 436 * radio + 524 * tv + 669 * progr + 1063 * search + 186 * fb + 484 * youtube + 1107 * other
-    # action = 3496 * press + 13765 * outdoor + 4015 * radio + 4171 * tv + 4208 * progr + 13853 * search + 6549 * fb + 506 * youtube + 5143 * other
-
-    # curiosity, intention, action = curiosity / 2, intention / 5, action / 250
+    for key in amount:
+        curiosity += get_audience(amount[key], key, 'curiosity')
+        intention += get_audience(amount[key], key, 'intention')
+        action += get_audience(amount[key], key, 'action')
     return str(int(curiosity)), str(int(intention)),  str(int(action))
+
+@app.callback(
+    [
+        Output(component_id='mix-press-out', component_property='children'),
+        Output(component_id = 'mix-outdoor-out', component_property = 'children'),
+        Output(component_id = 'mix-radio-out', component_property = 'children'),
+        Output(component_id='mix-tv-out', component_property='children'),
+        Output(component_id='mix-programmatic-out', component_property='children'),
+        Output(component_id='mix-search-out', component_property='children'),
+        Output(component_id='mix-video-out', component_property='children'),
+        Output(component_id='mix-youtube-out', component_property='children'),
+        Output(component_id='mix-other-out', component_property='children'),
+    ],
+    [
+        Input('mix-investment', 'value'),
+        Input('mix-target', 'value')
+    ]
+)
+def update_advice(
+        amount, target
+):
+    N = 20
+    n = 20
+    audience_out = [] * 9
+    amount_out = [] * 9
+    for i1 in range(N + 1):
+        for i2 in range(i1, N + 1):
+            amount1 = 1000 * (i1 / N) * int(amount)
+            amount2 = 1000 * ((i2 - i1) / N) * int(amount)
+            amount3 = 1000 * ((N - i2) / N) * int(amount)
+            if amount1 * amount2 * amount3 == 0: continue
+            print(amount1, amount2, amount3)
+
+            press_aud, press_amo, tv_aud, tv_amo, video_aud, video_amo = get_max_audience(amount1, 1, target, n = n)
+            outdoor_aud, outdoor_amo, programmatic_aud, programmatic_amo, youtube_aud, youtube_amo = get_max_audience(amount2, 2, target, n = n)
+            radio_aud, radio_amo, search_aud, search_amo, other_aud, other_amo = get_max_audience(amount3, 3, target, n = n)
+            sum1 = press_aud + tv_aud + video_aud
+            sum2 = outdoor_aud + programmatic_aud + youtube_aud
+            sum3 = radio_aud + search_aud + other_aud
+            if sum(audience_out) <  sum1 + sum2 + sum3 :
+                audience_out = [press_aud, tv_aud, video_aud, outdoor_aud, programmatic_aud, youtube_aud, radio_aud, search_aud, other_aud]
+                print('---WOMBAT---')
+                print(press_aud, tv_aud, video_aud, outdoor_aud, programmatic_aud, youtube_aud, radio_aud, search_aud, other_aud)
+                print('---WOMBAT---')
+                amount_out = [press_amo, tv_amo, video_amo, outdoor_amo, programmatic_amo, youtube_amo, radio_amo, search_amo, other_amo]
+
+    return ['{}K | {}'.format(round(amount_out[i] / 1000, 1), ceil(audience_out[i])) for i in range(9)] #amount, target, amount, amount, amount, amount, amount, amount, amount
+
+
 
 
 # --------------------------------------------
@@ -593,8 +653,6 @@ def update_figure_forecast(
     }
     #---------------------------------------
     dt_min, dt_max = dates_text.split(' | ')
-    print()
-    print(dt_min, dt_max)
     url_sales = '{}/sales?from=2017-01-01&to=2018-10-28'.format(MAIN_URL) #?from={}&to={} , dt_min, dt_max
 
     if region is not None:
@@ -663,7 +721,6 @@ def update_figure_forecast(
     df = df.rename(columns = {'date': 'Week_Date', 'forecast':'Forecast, RM'}).loc[df['forecast'].notnull(), ['Week_Date', 'Forecast, RM']]
     df['Forecast, RM'] = df['Forecast, RM'].apply(lambda x: round(x, 2))
     table = df.to_dict('records')
-    print(table)
 
     return graph_new, table
 

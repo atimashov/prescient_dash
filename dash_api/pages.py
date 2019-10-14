@@ -13,6 +13,9 @@ region_options = [{'label': str(region), 'value': str(region)}
 product_options = [{'label': product, 'value': product} for  product in PRODUCTS]
 prod_gr_options = [{'label': product, 'value': product} for  product in PRODUCTS_GROUPS]
 
+target_var = [{'label': target, 'value': target} for  target in ['curiosity', 'intention', 'action']]
+
+
 FONT = 'Open Sans'
 MAIN_COLOR = '#0074D9'
 
@@ -594,7 +597,7 @@ small_plate_style = {
 value_style = {
     'margin-top': -10,
     'font-family': FONT,
-    'font-size': '42px',
+    'font-size': '28px',
     'fontWeight': 600,
     'textAlign': 'center'
 }
@@ -847,20 +850,48 @@ def mix_modeler():
     investment_input = html.Div(
         [
             html.P(
-                'Type investment in MYR:',
+                'Type investment in 1000 MYR:',
                 style = {'margin-bottom': 5}
             ),
             dcc.Input(
-                id = 'mix_investment',
-                value = '1000000',
+                id = 'mix-investment',
+                value = '1000',
                 type = 'text'
             ),
         ],
-        className='row',
+        className = 'two columns',
         style = {
             'margin-top': 20,
             'margin-left': 20
         }
+    )
+
+    target_variable = html.Div(
+        [
+            html.P(
+                'Choose target variable:',
+                style={'margin-bottom': 5}
+            ),
+            dcc.Dropdown(
+                id = 'mix-target',
+                options = target_var,
+                multi = False,
+                value = target_var[0]['label']
+            )
+        ],
+        className = 'two columns',
+        style={
+            'margin-top': 20,
+            'margin-left': 0
+        }
+    )
+
+    investment_filters = html.Div(
+        [
+            investment_input,
+            target_variable
+        ],
+        className='row'
     )
 
     # ----------------------
@@ -871,9 +902,8 @@ def mix_modeler():
                 style = small_title_style
             ),
             html.H2(
-                '10000',
-                id='mix_press',
-
+                'calculating...',
+                id='mix-press-out',
                 style = value_style
             )
         ],
@@ -887,8 +917,8 @@ def mix_modeler():
                 style = small_title_style
             ),
             html.H2(
-                '10000',
-                id='mix_outdoor',
+                'calculating...',
+                id='mix-outdoor-out',
                 style = value_style
             )
         ],
@@ -902,8 +932,8 @@ def mix_modeler():
                 style = small_title_style
             ),
             html.H2(
-                '10000',
-                id='mix_radio',
+                'calculating...',
+                id='mix-radio-out',
                 style = value_style
             )
         ],
@@ -929,8 +959,8 @@ def mix_modeler():
                 style = small_title_style
             ),
             html.H2(
-                '10000',
-                id='mix_tv',
+                'calculating...',
+                id='mix-tv-out',
                 style = value_style
             )
         ],
@@ -944,8 +974,8 @@ def mix_modeler():
                 style = small_title_style
             ),
             html.H2(
-                '10000',
-                id='mix_programmatic',
+                'calculating...',
+                id='mix-programmatic-out',
                 style = value_style
             )
         ],
@@ -959,8 +989,8 @@ def mix_modeler():
                 style = small_title_style
             ),
             html.H2(
-                '10000',
-                id='mix_search',
+                'calculating...',
+                id='mix-search-out',
                 style = value_style
             )
         ],
@@ -986,8 +1016,8 @@ def mix_modeler():
                 style=small_title_style
             ),
             html.H2(
-                '10000',
-                id = 'mix_video',
+                'calculating...',
+                id = 'mix-video-out',
                 style=value_style
             )
         ],
@@ -1001,8 +1031,8 @@ def mix_modeler():
                 style=small_title_style
             ),
             html.H2(
-                '10000',
-                id='mix_youtube',
+                'calculating...',
+                id='mix-youtube-out',
                 style=value_style
             )
         ],
@@ -1016,8 +1046,8 @@ def mix_modeler():
                 style=small_title_style
             ),
             html.H2(
-                '10000',
-                id='mix_other_digita',
+                'calculating...',
+                id='mix-other-out',
                 style=value_style
             )
         ],
@@ -1037,9 +1067,6 @@ def mix_modeler():
         },
         className='row'
     )
-
-
-
 
     page = html.Div(
         [
@@ -1071,7 +1098,7 @@ def mix_modeler():
                     'textAlign': 'center'
                 }
             ),
-            investment_input,
+            investment_filters,
             investment_output_1,
             investment_output_2,
             investment_output_3,
