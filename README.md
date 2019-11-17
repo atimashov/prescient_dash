@@ -24,6 +24,7 @@ To install any package use following command:
 I'll give example for python 3.7
 
 `$ sudo apt install python3.7-minimal`
+
 To install virtual environment with specific python version* it's necessary to run following command as well:
 
 `$ sudo apt-get install python3.7-venv`
